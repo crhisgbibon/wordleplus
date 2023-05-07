@@ -1,0 +1,33 @@
+{
+  "name": "wordleplus",
+  "version": "1.0.0",
+  "description": "Codeigniter",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crhisgbibon/wordleplus.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crhisgbibon/wordleplus/issues"
+  },
+  "homepage": "https://github.com/crhisgbibon/wordleplus#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.23",
+    "tailwindcss": "^3.3.2",
+    "webpack": "^5.82.0"
+  },
+  "dependencies": {
+    "eslint": "^8.40.0",
+    "nodemon": "^2.0.22",
+    "prettier": "^2.8.8"
+  }
+}

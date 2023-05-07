@@ -11,6 +11,9 @@ When updating:
 Run dev server:
 ``` php spark serve ```
 
+Run Prettier
+```npx prettier --write .```
+
 # CodeIgniter 4 Application Starter
 
 ## What is CodeIgniter?
