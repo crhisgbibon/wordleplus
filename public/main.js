@@ -1,14 +1,5 @@
 "use strict";
 
-function CalculateVh() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', vh + 'px');
-}
-
-window.addEventListener('DOMContentLoaded', CalculateVh);
-window.addEventListener('resize', CalculateVh);
-window.addEventListener('orientationchange', CalculateVh);
-
 const inputOutputButton = document.getElementById("inputOutputButton");
 inputOutputButton.onclick = function() { SwitchSwitch() };
 const ioImg = document.getElementById("ioImg");
@@ -430,7 +421,7 @@ function Reset()
   // clear the input grid
   for(let i = 0; i < wLength; i++)
   {
-    wArray[i].innerHTML = "";
+    wArray[i].value = "";
     wArray[i].dataset.state = "excluded";
     wArray[i].style.backgroundColor = "var(--backgroundLight)";
     let el = document.getElementById("s" + wArray[i].id[1] + wArray[i].id[2]);
@@ -546,7 +537,6 @@ function Solve(word)
     },
     success:function(result)
     {
-      console.log(result);
       if(result === "-1")
       {
         solveCenterOutputText.innerHTML = "This word is not in the current dictionary.";
@@ -568,9 +558,8 @@ function Solve(word)
       }
       thinking = false;
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
       thinking = false;
     }
   });
@@ -613,7 +602,7 @@ async function SolveResponse(outputList, guessList)
   for(let i = 0; i < wLength; i++)
   {
     let el = document.getElementById("s" + wArray[i].id[1] + wArray[i].id[2]);
-    wArray[i].innerHTML = "";
+    wArray[i].value = "";
     wArray[i].style.backgroundColor = "var(--backgroundLight)";
     wArray[i].dataset.state = "excluded";
     el.dataset.state = "excluded";
@@ -627,9 +616,8 @@ async function SolveResponse(outputList, guessList)
     
     await Sleep(100);
     
-    wArray[i].innerHTML = guessArr[i].toString();
+    wArray[i].value = guessArr[i];
     AnimateOnColour(wArray[i]);
-    wArray[i].style.color = "black";
     
     if(colorArr[i] == -1)
     {
@@ -767,7 +755,6 @@ function ChangeDictionary(dictionary1)
     url: "/ChangeDictionary",
     data:
     {
-      
       action:'ChangeDictionary',
       request:dictionary1
     },
@@ -789,9 +776,8 @@ function ChangeDictionary(dictionary1)
       }
       thinking = false;
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
       thinking = false;
     }
   });
@@ -1072,7 +1058,7 @@ function FilterByInput()
   // identify the guessed words
 	for(let i = 0; i < wLength; i+= 5)
 	{
-		let one = wArray[i].innerHTML;
+		let one = wArray[i].value;
 		let two = wArray[i + 1].value;
 		let three = wArray[i + 2].value;
 		let four = wArray[i + 3].value;
@@ -1097,7 +1083,7 @@ function FilterByInput()
   // identify known letters + position first
 	for(let i = 0; i < wLength; i++)
   {
-    if(wArray[i].innerHTML === "" || wArray[i].innerHTML === "-") continue;
+    if(wArray[i].value === "" || wArray[i].value === "-") continue;
     
     let dataState = wArray[i].dataset.state;
     
@@ -1105,7 +1091,7 @@ function FilterByInput()
     if(dataState === "rightPosition")
     {
       let letterPos = wArray[i].id[2];
-      knownLetters[letterPos] = wArray[i].innerHTML.toUpperCase();
+      knownLetters[letterPos] = wArray[i].value.toUpperCase();
       continue;
     }
   }
@@ -1113,7 +1099,7 @@ function FilterByInput()
   // then log excluded letters
 	for(let i = 0; i < wLength; i++)
   {
-    if(wArray[i].innerHTML === "" || wArray[i].innerHTML === "-") continue;
+    if(wArray[i].value === "" || wArray[i].value === "-") continue;
     
     let dataState = wArray[i].dataset.state;
     
@@ -1123,14 +1109,14 @@ function FilterByInput()
       let check = true;
       for(let e = 0; e < excludedLetters.length; e++)
       {
-        if(wArray[i].innerHTML.toUpperCase() === excludedLetters[e].toUpperCase())
+        if(wArray[i].value.toUpperCase() === excludedLetters[e].toUpperCase())
         {
           check = false;
         }
       }
       if(check)
       {
-        excludedLetters.push(wArray[i].innerHTML.toUpperCase());
+        excludedLetters.push(wArray[i].value.toUpperCase());
       }
     }
   }
@@ -1138,7 +1124,7 @@ function FilterByInput()
   // then log wrong position letters
 	for(let i = 0; i < wLength; i++)
   {
-    if(wArray[i].innerHTML === "" || wArray[i].innerHTML === "-") continue;
+    if(wArray[i].value === "" || wArray[i].value === "-") continue;
     
     let dataState = wArray[i].dataset.state;
     
@@ -1149,7 +1135,7 @@ function FilterByInput()
       
       for(let k = 0; k < knownLettersByPosition.length; k++)
       {
-        if(wArray[i].innerHTML.toUpperCase() == knownLettersByPosition[k].letter.toUpperCase())
+        if(wArray[i].value.toUpperCase() == knownLettersByPosition[k].letter.toUpperCase())
         {
           knownLettersByPosition[k].positions.push(wArray[i].id[2]);
           check = false;
@@ -1159,7 +1145,7 @@ function FilterByInput()
       if(check)
       {
         let newWord = new wrongPosLetter();
-        newWord.letter = wArray[i].innerHTML.toUpperCase();
+        newWord.letter = wArray[i].value.toUpperCase();
         newWord.positions = [];
         newWord.positions.push(wArray[i].id[2]);
         knownLettersByPosition.push(newWord);
@@ -1188,7 +1174,6 @@ function FilterByInput()
     url: "/FilterByInput",
     data:
     {
-      
       action:'FilterByInput',
       dictionary:dictionary,
       guessedWords:guessedWords,
@@ -1202,9 +1187,8 @@ function FilterByInput()
       FillOutput(tempArray)
       thinking = false;
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
       thinking = false;
     }
   });
@@ -1233,7 +1217,6 @@ function FilterByKeys()
     url: "/FilterByKeys",
     data:
     {
-      
       action:'FilterByKeys',
       dictionary:dictionary,
       excludedLetters:excludedLetters
@@ -1251,9 +1234,8 @@ function FilterByKeys()
       }
       thinking = false;
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
       thinking = false;
     }
   });
@@ -1445,19 +1427,19 @@ function FillInput()
   {
     if(i < inputString.length)
     {
-      if(wArray[i].innerHTML != inputString[i])
+      if(wArray[i].value != inputString[i])
       {
-        wArray[i].innerHTML = inputString[i];
+        wArray[i].value = inputString[i];
         AnimateOnInput(wArray[i]);
       }
     }
     else 
     {
-      if(wArray[i].innerHTML != "")
+      if(wArray[i].value != "")
       {
         AnimateOnInput(wArray[i]);
       }
-      wArray[i].innerHTML = "";
+      wArray[i].value = "";
     }
   }
   
@@ -1821,7 +1803,6 @@ function RandomSolve()
     url: "/RandomSolve",
     data:
     {
-      
       action:'RandomSolve',
       dictionary:dictionary
     },
@@ -1831,9 +1812,8 @@ function RandomSolve()
       FillSolve();
       thinking = false;
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
       thinking = false;
     }
   });
@@ -1923,20 +1903,15 @@ function NewGame()
       url: "/NewGame",
       data:
       {
-        
         action:'NewGame',
         dictionary:dictionary
       },
       success:function(result)
       {
-        console.log(result);
         thinking = false;
       },
-      error:function(xhr, status, error)
+      error:function(result)
       {
-        console.error(xhr.responseText);
-        console.error(status);
-        console.error(error);
         thinking = false;
       }
     });
@@ -1981,7 +1956,6 @@ function NewGame()
       url: "/NewArcade",
       data:
       {
-        
         action:'NewArcade',
         dictionary:dictionary
       },
@@ -1989,9 +1963,8 @@ function NewGame()
       {
         thinking = false;
       },
-      error:function(xhr, status, error)
+      error:function(result)
       {
-        console.error(xhr.responseText);
         thinking = false;
       }
     });
@@ -2030,7 +2003,7 @@ function NextArcadeGame()
   // clear the input grid
   for(let i = 0; i < wLength; i++)
   {
-    wArray[i].innerHTML = "";
+    wArray[i].value = "";
     wArray[i].dataset.state = "excluded";
     wArray[i].style.backgroundColor = "var(--backgroundLight)";
     let el = document.getElementById("s" + wArray[i].id[1] + wArray[i].id[2]);
@@ -2071,7 +2044,6 @@ function NextArcadeGame()
       url: "/NewArcade",
       data:
       {
-        
         action:'NewArcade',
         dictionary:dictionary
       },
@@ -2101,9 +2073,8 @@ function NextArcadeGame()
         
         thinking = false;
       },
-      error:function(xhr, status, error)
+      error:function(result)
       {
-        console.error(xhr.responseText);
         thinking = false;
       }
     });
@@ -2179,7 +2150,6 @@ function RequestClue()
       url: "/GetArcadeClue",
       data:
       {
-        
         action:'GetArcadeClue',
         dictionary:dictionary,
         clue:clueString.toUpperCase()
@@ -2194,9 +2164,9 @@ function RequestClue()
         let clueButton = document.getElementById("useClueArcadeButton");
         if(clueButton != null) clueButton.innerHTML = arcadeClues;
       },
-      error:function(xhr, status, error)
+      error:function(result)
       {
-        console.error(xhr.responseText);
+
       }
     });
     working = false;
@@ -2280,7 +2250,6 @@ function SubmitToLeaderboard()
     url: "/SaveArcade",
     data:
     {
-      
       action:'SaveArcade',
       dictionary:dictionary,
       gameState: gameState,
@@ -2291,9 +2260,9 @@ function SubmitToLeaderboard()
     {
 
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
+
     }
   });
   TerminateArcade();
@@ -2378,7 +2347,6 @@ function ProcessGuess(item)
       url: "/SubmitGuess",
       data:
       {
-        
         action:'SubmitGuess',
         flag:"process",
         dictionary:dictionary,
@@ -2391,9 +2359,8 @@ function ProcessGuess(item)
       {
         resolve(result);
       },
-      error:function(xhr, status, error)
+      error:function(result)
       {
-        console.error(xhr.responseText);
         reject(result);
       }
     });
@@ -2505,7 +2472,6 @@ function SubmitGuess()
     url: "/SubmitGuess",
     data:
     {
-      
       action:'SubmitGuess',
       dictionary:dictionary,
       allGuesses: inputString,
@@ -2550,9 +2516,8 @@ function SubmitGuess()
       }
       thinking = false;
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
       thinking = false;
     }
   });
@@ -2712,7 +2677,6 @@ function EndGame(winState)
     url: "/PostGame",
     data:
     {
-      
       action:'PostGame',
       request:dictionary,
       gameState: gameState
@@ -2724,9 +2688,8 @@ function EndGame(winState)
       FillSavedResult(guessLevel, winState);
       thinking = false;
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
       theAnswer = "ERROR";
       FillResult(winState, theAnswer);
       thinking = false;
@@ -3009,7 +2972,6 @@ function FillLeaderboard()
     url: "/FillLeaderboard",
     data:
     {
-      
       action:'FillLeaderboard',
       dictionary:dictionary,
       gameState: gameState
@@ -3020,9 +2982,8 @@ function FillLeaderboard()
       OutputLeaderboard(tempArray);
       thinking = false;
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
       thinking = false;
     }
   });
@@ -3266,7 +3227,6 @@ function TESTTEST()
     url: "/TEST",
     data:
     {
-      
       action:'TEST',
       dictionary:dictionary,
     },
@@ -3274,9 +3234,8 @@ function TESTTEST()
     {
       thinking = false;
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
       thinking = false;
     }
   });
@@ -3291,7 +3250,6 @@ function StartDaily()
     url: "/startDaily",
     data:
     {
-      
       action:'startDaily',
       dictionary:dictionary,
     },
@@ -3299,9 +3257,8 @@ function StartDaily()
     {
       DailyReady();
     },
-    error:function(xhr, status, error)
+    error:function(result)
     {
-      console.error(xhr.responseText);
       thinking = false;
     }
   });
