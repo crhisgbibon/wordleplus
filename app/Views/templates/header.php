@@ -28,4 +28,4 @@
 
   <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
 </head>
-<body style='height: calc(var(--vh) * 100); max-height: height: calc(var(--vh) * 100);'>
+<body>

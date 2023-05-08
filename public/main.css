@@ -41,6 +41,8 @@
 
 body{
   font-family: 'Open Sans', sans-serif;
+  height: calc(var(--vh) * 100);
+  max-height: calc(var(--vh) * 100);
 }
 
 input{

@@ -48,31 +48,36 @@
   padding: 0;
 }
 
-#wordTableGuessBody td input{
+.guessTDP{
+  background-color: var(--backgroundLight);
+}
+
+.guessTD input{
   position: absolute;
   top: 0;
   left: 0;
-  height: 90%;
-  width: 90%;
+  height: 50%;
+  width: 50%;
   margin: 0;
   padding: 0;
   font-size: 16px;
   text-transform: uppercase;
   border-radius: 12px;
-  background-color: var(--backgroundLight);
   box-sizing: border-box;
+  opacity: 1;
 }
 
-#wordTableGuessBody td button{
+.guessTD button{
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
+  bottom: 0;
+  right: 0;
+  height: 50%;
+  width: 50%;
   margin: 0;
   padding: 0;
-  border: 0;
-  opacity: 0;
-  background-color: rgba(0,0,0,0);
-  z-index: 1;
+  font-size: 16px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  opacity: 1;
+  background-color: rgba(0,0,0,1);
 }

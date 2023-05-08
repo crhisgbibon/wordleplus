@@ -21,7 +21,7 @@
           echo '
             <td class="guessTD">
               <input disabled class="wordInput" id="w'.$i . $r.'" maxlength="1" type="text">
-              <button class="stateButton" id="s'.$i . $r.'"></button>
+              <button class="stateButton" id="s'.$i . $r.'" onclick="SwitchState(this)"></button>
             </td>
           ';
         }

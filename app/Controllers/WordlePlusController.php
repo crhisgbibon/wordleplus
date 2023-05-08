@@ -249,10 +249,10 @@ class WordlePlusController extends BaseController
     $dictionary = (int)$this->request->getVar('dictionary');
     $this->Boot($dictionary);
 
-    $guessedWords = (string)$this->request->getVar('guessedWords');
-    $excludedLetters = (string)$this->request->getVar('excludedLetters');
-    $knownLetters = (string)$this->request->getVar('knownLetters');
-    $knownLettersByPosition = (string)$this->request->getVar('knownLettersByPosition');
+    $guessedWords = (array)$this->request->getVar('guessedWords');
+    $excludedLetters = (array)$this->request->getVar('excludedLetters');
+    $knownLetters = (array)$this->request->getVar('knownLetters');
+    $knownLettersByPosition = (array)$this->request->getVar('knownLettersByPosition');
 
     if(isset($guessedWords))
     {

@@ -17,19 +17,19 @@
           <button id="sortButton" class="wordFilterBookend"><img id="ioSort" src="images/crown.svg"></button>
         </td>
         <td class="listCol filterTD">
-          <div class="wordFilter" id="o0" maxlength="1" type="text"></div>
+          <input class="wordFilter" id="o0" maxlength="1" type="text">
         </td>
         <td class="listCol filterTD">
-          <div class="wordFilter" id="o1" maxlength="1" type="text"></div>
+          <input class="wordFilter" id="o1" maxlength="1" type="text">
         </td>
         <td class="listCol filterTD">
-          <div class="wordFilter" id="o2" maxlength="1" type="text"></div>
+          <input class="wordFilter" id="o2" maxlength="1" type="text">
         </td>
         <td class="listCol filterTD">
-          <div class="wordFilter" id="o3" maxlength="1" type="text"></div>
+          <input class="wordFilter" id="o3" maxlength="1" type="text">
         </td>
         <td class="listCol filterTD">
-          <div class="wordFilter" id="o4" maxlength="1" type="text"></div>
+          <input class="wordFilter" id="o4" maxlength="1" type="text">
         </td>
         <td class="listEnd filterTD">
           <div class="wordFilterBookend" id="totalWordCount" type="text"></div>

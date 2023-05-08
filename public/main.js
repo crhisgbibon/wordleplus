@@ -1183,12 +1183,14 @@ function FilterByInput()
     },
     success:function(result)
     {
+      console.log(result);
       let tempArray = JSON.parse(result);
       FillOutput(tempArray)
       thinking = false;
     },
     error:function(result)
     {
+      console.log(result);
       thinking = false;
     }
   });
