@@ -9,6 +9,7 @@
   <link rel="icon" href="favicon.ico">
 
   <link rel="stylesheet" type="text/css" href="main.css" />
+  <link rel="stylesheet" type="text/css" href="tailwind.css" />
 
   <link rel="stylesheet" type="text/css" href="css/chart.css" />
   <link rel="stylesheet" type="text/css" href="css/clue.css" />

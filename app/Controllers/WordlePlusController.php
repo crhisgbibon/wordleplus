@@ -132,7 +132,6 @@ class WordlePlusController extends BaseController
 
             . view('wordleplus/listTable')
             . view('wordleplus/keyboard')
-            . view('wordleplus/guessTable')
 
             . view('templates/footer');
   }

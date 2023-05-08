@@ -3,6 +3,7 @@
 namespace Config;
 
 use App\Controllers\WordlePlusController;
+use App\Controllers\WordlePlusController1;
 
 // Create a new instance of our RouteCollection class.
 $routes = Services::routes();
@@ -13,7 +14,7 @@ $routes = Services::routes();
  * --------------------------------------------------------------------
  */
 $routes->setDefaultNamespace('App\Controllers');
-$routes->setDefaultController('WordlePlusController');
+$routes->setDefaultController('WordlePlusController1');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
@@ -31,6 +32,9 @@ $routes->setAutoRoute(false);
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
+
+
+
 $routes->get('/', [WordlePlusController::class, 'index']);
 
 $routes->post('Solve', [WordlePlusController::class, 'Solve']);
@@ -53,6 +57,32 @@ $routes->post('FillLeaderboard', [WordlePlusController::class, 'FillLeaderboard'
 
 $routes->post('TEST', [WordlePlusController::class, 'TEST']);
 $routes->post('startDaily', [WordlePlusController::class, 'startDaily']);
+
+
+
+
+// $routes->get('/', [WordlePlusController1::class, 'index']);
+
+// $routes->post('Solve', [WordlePlusController1::class, 'Solve']);
+// $routes->post('ChangeDictionary', [WordlePlusController1::class, 'ChangeDictionary']);
+
+// $routes->post('FilterByInput', [WordlePlusController1::class, 'FilterByInput']);
+// $routes->post('FilterByKeys', [WordlePlusController1::class, 'FilterByKeys']);
+
+// $routes->post('RandomSolve', [WordlePlusController1::class, 'RandomSolve']);
+// $routes->post('NewGame', [WordlePlusController1::class, 'NewGame']);
+
+// $routes->post('NewArcade', [WordlePlusController1::class, 'NewArcade']);
+// $routes->post('GetArcadeClue', [WordlePlusController1::class, 'GetArcadeClue']);
+
+// $routes->post('SaveArcade', [WordlePlusController1::class, 'SaveArcade']);
+// $routes->post('SubmitGuess', [WordlePlusController1::class, 'SubmitGuess']);
+
+// $routes->post('PostGame', [WordlePlusController1::class, 'PostGame']);
+// $routes->post('FillLeaderboard', [WordlePlusController1::class, 'FillLeaderboard']);
+
+// $routes->post('TEST', [WordlePlusController1::class, 'TEST']);
+// $routes->post('startDaily', [WordlePlusController1::class, 'startDaily']);
 
 /*
  * --------------------------------------------------------------------
