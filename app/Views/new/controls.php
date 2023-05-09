@@ -14,7 +14,7 @@
       <button id="RESET_BUTTON" class='h-11/12 w-1/6 active:scale-95 hover:scale-105 rounded-lg mx-2 p-2 flex justify-center items-center'><img class='w-10/12 h-10/12' src="images/undo.svg"></button>
     </div>
 
-    <div class='h-full w-5/6 mx-auto flex flex-row justify-center items-center hidden'></div>
+    <div id="playTextPanel" class='h-full w-5/6 mx-auto flex flex-row justify-center items-center hidden'></div>
 
   </div>
 </div>

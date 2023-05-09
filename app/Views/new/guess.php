@@ -10,7 +10,7 @@
         {
           echo '
           <div class="h-full" style="width: calc( 95% / ' . $buttonCount . ')">
-            <button class="letterInput active:scale-95 hover:scale-105 rounded-lg" style="background-color: var(--backgroundLight); height: 90%; width: 90%;" id="'. $i . $r.'"></button>
+            <button class="wordInput active:scale-95 hover:scale-105 rounded-lg" style="background-color: var(--backgroundLight); height: 90%; width: 90%;" id="'. $i . $r.'"></button>
           </div>
           ';
         }

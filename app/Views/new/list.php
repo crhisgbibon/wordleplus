@@ -7,23 +7,23 @@
     </div>
 
     <div class="flex justify-center items-center">
-      <input disabled class="rounded-lg w-10 h-10 mx-2 uppercase" maxlength="1" type="text" style='background-color: var(--backgroundLight);'>
+      <button disabled class="filterWords rounded-lg w-10 h-10 mx-2 uppercase" style='background-color: var(--backgroundLight);'></button>
     </div>
 
     <div class="flex justify-center items-center">
-      <input disabled class="rounded-lg w-10 h-10 mx-2 uppercase" maxlength="1" type="text" style='background-color: var(--backgroundLight);'>
+      <button disabled class="filterWords rounded-lg w-10 h-10 mx-2 uppercase" style='background-color: var(--backgroundLight);'></button>
     </div>
 
     <div class="flex justify-center items-center">
-      <input disabled class="rounded-lg w-10 h-10 mx-2 uppercase" maxlength="1" type="text" style='background-color: var(--backgroundLight);'>
+      <button disabled class="filterWords rounded-lg w-10 h-10 mx-2 uppercase" style='background-color: var(--backgroundLight);'></button>
     </div>
 
     <div class="flex justify-center items-center">
-      <input disabled class="rounded-lg w-10 h-10 mx-2 uppercase" maxlength="1" type="text" style='background-color: var(--backgroundLight);'>
+      <button disabled class="filterWords rounded-lg w-10 h-10 mx-2 uppercase" style='background-color: var(--backgroundLight);'></button>
     </div>
 
     <div class="flex justify-center items-center">
-      <input disabled class="rounded-lg w-10 h-10 mx-2 uppercase" maxlength="1" type="text" style='background-color: var(--backgroundLight);'>
+      <button disabled class="filterWords rounded-lg w-10 h-10 mx-2 uppercase" style='background-color: var(--backgroundLight);'></button>
     </div>
 
   </div>
