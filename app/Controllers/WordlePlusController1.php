@@ -7,6 +7,7 @@ use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\Files\File;
 
 use App\Models\WordlePlusModel;
+use App\Models\WordleProcessModel;
 use App\Models\WordlePlusFragmentsModel;
 
 class WordlePlusController1 extends BaseController
@@ -20,7 +21,7 @@ class WordlePlusController1 extends BaseController
     $this->w = [];
     $this->file = '';
     $this->wordsRemaining = [];
-    if(!$this->session->has('dictionary')) $this->session->set('dictionary', '3');
+    if(!$this->session->has('dictionary')) $this->session->set('dictionary', '2');
   }
 
   private function Boot(int $dictionary)
@@ -28,17 +29,14 @@ class WordlePlusController1 extends BaseController
     $this->wordsRemaining = [];
 
     $this->file = WRITEPATH . 'words/1000F.txt';
+    if($dictionary === 1) $this->file = WRITEPATH . 'words/10000F.txt';
+    if($dictionary === 2) $this->file = WRITEPATH . 'words/20000F.txt';
 
-    if($dictionary === 2) $this->file = WRITEPATH . 'words/10000F.txt';
-    if($dictionary === 3) $this->file = WRITEPATH . 'words/20000F.txt';
+    if($dictionary === 3) $this->file = WRITEPATH . 'words/english1F.txt';
+    if($dictionary === 4) $this->file = WRITEPATH . 'words/english2F.txt';
+    if($dictionary === 5) $this->file = WRITEPATH . 'words/wordsF.txt';
 
-    if($dictionary === 4) $this->file = WRITEPATH . 'words/english1F.txt';
-    if($dictionary === 5) $this->file = WRITEPATH . 'words/english2F.txt';
-    if($dictionary === 6) $this->file = WRITEPATH . 'words/wordsF.txt';
-
-    if($dictionary === 7) $this->file = WRITEPATH . 'words/allwordsF.txt';
-    if($dictionary === 8) $this->file = WRITEPATH . 'words/wordleListF.txt';
-    if($dictionary === 9) $this->file = WRITEPATH . 'words/wordleList2F.txt';
+    if($dictionary === 6) $this->file = WRITEPATH . 'words/allwordsF.txt';
 
     $this->w = $this->ConvertRankedFileToArray(file_get_contents($this->file));
     $this->qwerty = array("Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P","A", "S", "D", "F", "G", "H", "J", "K", "L", "?","Z", "X", "C", "V", "B", "N", "M", "-", ">", "<");
@@ -55,7 +53,7 @@ class WordlePlusController1 extends BaseController
     return $w;
   }
 
-  // PROCESS
+  // ROUTE CONTROLLERS
 
   public function index()
   {
@@ -91,24 +89,22 @@ class WordlePlusController1 extends BaseController
 
   public function Solve()
   {
-    $this->Boot((int)$this->session->get('dictionary'));
+    $process = new WordleProcessModel();
 
-    $solveAttempt = (string)$this->request->getVar('solveAttempt');
+    $this->Boot((int)$this->session->get('dictionary'));
+    $data = json_decode($this->request->getVar('data'));
+    $solveAttempt = $data->solveString;
     
     $arraySingle = call_user_func_array('array_merge', $this->wordsRemaining);
-
     $checkExists = in_array($solveAttempt, $arraySingle);
     
-    if(!$checkExists)
-    {
-      return "-1";
-    } 
+    if(!$checkExists) return json_encode("-1");
     
-    $guessList = array();
+    $guessList = [];
     $guessCount = 1;
-    $this->wordsRemaining = $this->ScoreArray($this->wordsRemaining);
+    $this->wordsRemaining = $process->ScoreArray($this->wordsRemaining);
     usort($this->wordsRemaining, function($a, $b) {
-      if ($a[1] == $b[1]) return 0;
+      if ($a[1] === $b[1]) return 0;
       return $a[1] < $b[1] ? 1 : -1;
     });
     $wRLen = count($this->wordsRemaining);
@@ -123,13 +119,13 @@ class WordlePlusController1 extends BaseController
         {
           $guess = $this->wordsRemaining[0][0];
           array_push($guessList, $guess);
-          $result = $this->Evaluate($guess, $solveAttempt);
+          $result = $process->Evaluate($guess, $solveAttempt);
           
           $rCount = count($result);
           
           for($r = 0; $r < $rCount; $r++)
           {
-            if($result[$r] == 2) $hasWon++;
+            if($result[$r] === 2) $hasWon++;
           }
           
           if($hasWon >= 5)
@@ -137,11 +133,11 @@ class WordlePlusController1 extends BaseController
             break;
           }
 
-          $output = $this->FilterList($this->wordsRemaining, $solveAttempt, $guessList);
+          $output = $process->FilterList($this->wordsRemaining, $solveAttempt, $guessList);
           
-          $this->wordsRemaining = $this->ScoreArray($output);
+          $this->wordsRemaining = $process->ScoreArray($output);
           usort($this->wordsRemaining, function($a, $b) {
-            if ($a[1] == $b[1]) return 0;
+            if ($a[1] === $b[1]) return 0;
             return $a[1] < $b[1] ? 1 : -1;
           });
         }
@@ -156,7 +152,7 @@ class WordlePlusController1 extends BaseController
     $guessListCount = count($guessList);
     if($wRLen > 0 && $guessListCount > 0)
     {
-      if($this->wordsRemaining[0][0] == $guessList[$guessListCount - 1])
+      if($this->wordsRemaining[0][0] === $guessList[$guessListCount - 1])
       {
         $this->wordsRemaining[0] = null;
         $this->wordsRemaining = array_filter($this->wordsRemaining);
@@ -164,9 +160,9 @@ class WordlePlusController1 extends BaseController
       }
     }
     
-    $this->wordsRemaining = $this->ScoreArray($this->wordsRemaining);
+    $this->wordsRemaining = $process->ScoreArray($this->wordsRemaining);
     usort($this->wordsRemaining, function($a, $b) {
-      if ($a[1] == $b[1]) return 0;
+      if ($a[1] === $b[1]) return 0;
       return $a[1] < $b[1] ? 1 : -1;
     });
     
@@ -174,7 +170,7 @@ class WordlePlusController1 extends BaseController
     $gCount = count($guessList);
     for($g = 0; $g < $gCount; $g++)
     {
-      $r = $this->Evaluate($guessList[$g], $solveAttempt);
+      $r = $process->Evaluate($guessList[$g], $solveAttempt);
       array_push($guessResultArray, $r);
     }
     
@@ -185,5 +181,123 @@ class WordlePlusController1 extends BaseController
     array_push($finalOutput, $guessResultArray);
     
     return json_encode($finalOutput, JSON_UNESCAPED_UNICODE);
+  }
+
+  public function ChangeDictionary()
+  {
+    $this->Boot((int)$this->session->get('dictionary'));
+    $data = json_decode($this->request->getVar('data'));
+    $newDictionary = (string)$data->newDictionary;
+    $this->session->set('dictionary', $newDictionary);
+    return json_encode((string)$this->session->get('dictionary'), JSON_UNESCAPED_UNICODE);
+  }
+
+  public function FilterByInput()
+  {
+    $process = new WordleProcessModel();
+
+    $this->Boot((int)$this->session->get('dictionary'));
+    $data = json_decode($this->request->getVar('data'));
+
+    $guessedWords = (array)$data->guessedWords;
+    $excludedLetters = (array)$data->excludedLetters;
+    $knownLetters = (array)$data->knownLetters;
+    $knownLettersByPosition = (array)$data->knownLettersByPosition;
+
+    if(isset($guessedWords)) $gLen = count($guessedWords);
+    if(isset($excludedLetters)) $eLen = count($excludedLetters);
+    if(isset($knownLetters)) $kLen = count($knownLetters);
+    if(isset($knownLettersByPosition)) $pLen = count($knownLettersByPosition);
+    
+    $wordOutput = [];
+    
+    $wLen = count($this->wordsRemaining);
+    
+    for($i = 0; $i < $wLen; $i++)
+    {
+      $wordToCheck = str_split($this->wordsRemaining[$i][0]);
+      $hide = false;
+      if(isset($knownLetters))
+      {
+        for($a = 0; $a < $kLen; $a++)
+        {
+          if($knownLetters[$a] != "-1")
+          {
+            if($wordToCheck[$a] != $knownLetters[$a]) $hide = true;
+          }
+        }
+      }
+      
+      if(isset($excludedLetters))
+      {
+        for($a = 0; $a < $eLen; $a++)
+        {
+          if(in_array($excludedLetters[$a], $wordToCheck))
+          {
+            $key = array_keys($knownLetters, $excludedLetters[$a]);
+            $keyLen = count($key);
+            
+            $check = array_keys($wordToCheck, $excludedLetters[$a]);
+            $checkLen = count($check);
+            if($keyLen < $checkLen)
+            {
+              $hide = true;
+            }
+          }
+        }
+      }
+      
+      // check the letter does appear
+      // check the letter does not appear at a logged position
+      // check the letter does not appear in wordToCheck more times than in the guessed word
+      if(isset($knownLettersByPosition))
+      {
+        // for each entry in known letters by position
+        for($a = 0; $a < $pLen; $a++)
+        {
+          // is the letter in the word at all, if not then hide
+          if(in_array($knownLettersByPosition[$a]["letter"], $wordToCheck))
+          {
+            // get the position/s of where the letter is in the word and get positions count
+            $positionsCount = count($knownLettersByPosition[$a]["positions"]);
+            $indexL = array_keys($wordToCheck, $knownLettersByPosition[$a]["letter"]);
+            $cCount = count($indexL);
+            
+            // if the letter is in the word, if it is at a voided position then hide
+            for($p = 0; $p < $cCount; $p++)
+            {
+              for($m = 0; $m < $positionsCount; $m++)
+              {
+                if($knownLettersByPosition[$a]["positions"][$m] == $indexL[$p])
+                {
+                  $hide = true;
+                }
+              }
+            }
+          }
+          else
+          {
+            $hide = true;
+          }
+          
+          // count how many times letter appears in wordsToCheck?
+        }
+      }
+      
+      if(!$hide)
+      {
+        $el = array($wordToCheck, 0);
+        array_push($wordOutput, $el);
+      }
+    }
+    
+    $this->wordsRemaining = $process->ScoreArray($wordOutput);
+  
+    usort($this->wordsRemaining, function($a, $b) {
+      if ($a[1] == $b[1]) return 0;
+      return $a[1] < $b[1] ? 1 : -1;
+    });
+    
+    echo json_encode($this->wordsRemaining, JSON_UNESCAPED_UNICODE);
   }
 }

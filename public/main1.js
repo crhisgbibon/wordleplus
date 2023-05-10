@@ -16,6 +16,8 @@ function Main()
   // Assign GUESS buttons
   for(let i = 0; i < wLength; i++)
   {
+    wArray[i].innerHTML = '';
+    wArray[i].style.backgroundColor = 'var(--backgroundLight)';
     wArray[i].dataset.state = "excluded";
     wArray[i].onclick = null;
     wArray[i].onclick = function() { SwitchState(wArray[i]); };
@@ -26,6 +28,7 @@ function Main()
   {
     dArray[i].onclick = null;
     dArray[i].onclick = function() { ChangeDictionary(i); };
+    if(i === 2) dArray[i].style.backgroundColor = 'var(--green)';
   }
   GUESS_FROM.onclick = function() { GuessFrom(); };
 
@@ -39,6 +42,19 @@ function Main()
     kArray[i].onclick = null;
     kArray[i].onclick = function() { Toggle(kArray[i].innerHTML); };
   }
+  
+  // Clear variables
+
+  playing = '';
+  keyboardsearch = false;
+  guessLevel = 0;
+  winCount = 0;
+
+  nameString = '';
+  solveString = '';
+  filterString = '';
+  inputString = '';
+  keyboardString = '';
 
   // Startup
   CHART.style.display = 'none';
@@ -148,16 +164,131 @@ function SwitchState(button)
   }
 }
 
+function FilterByInput()
+{
+  if(playing !== '') return;
+
+  class wrongPosLetter
+  {
+    wrongPosLetter(letter, positions)
+    {
+      this.letter = letter;
+      this.positions = positions;
+    }
+  }
+
+  let guessedWords = [];
+  let knownLetters = ["-1", "-1", "-1", "-1", "-1"];
+  let excludedLetters = [];
+  let knownLettersByPosition = [];
+
+  // identify the guessed words
+  for(let i = 0; i < wLength; i+= 5)
+  {
+    let one = wArray[i].innerHTML;
+    let two = wArray[i + 1].innerHTML;
+    let three = wArray[i + 2].innerHTML;
+    let four = wArray[i + 3].innerHTML;
+    let five = wArray[i + 4].innerHTML;
+
+    let word = one + two + three + four + five;
+    if(word.length === 5) guessedWords.push(word);
+  }
+
+  // identify known letters + position first
+  for(let i = 0; i < wLength; i++)
+  {
+    if(wArray[i].innerHTML === "" || wArray[i].innerHTML === "-") continue;
+
+    let dataState = wArray[i].dataset.state;
+
+    // if known position store directly
+    if(dataState === "rightPosition")
+    {
+      let letterPos = wArray[i].id[2];
+      knownLetters[letterPos] = wArray[i].innerHTML.toUpperCase();
+    }
+    // if excluded letters then log if not already logged
+    if(dataState === "excluded" || dataState === "" || dataState === undefined)
+    {
+      let check = true;
+      for(let e = 0; e < excludedLetters.length; e++)
+      {
+        if(wArray[i].innerHTML.toUpperCase() === excludedLetters[e].toUpperCase())
+        {
+          check = false;
+        }
+      }
+      if(check)
+      {
+        excludedLetters.push(wArray[i].innerHTML.toUpperCase());
+      }
+    }
+    if(dataState === "wrongPosition")
+    {
+      let check = true;
+
+      for(let k = 0; k < knownLettersByPosition.length; k++)
+      {
+        if(wArray[i].innerHTML.toUpperCase() === knownLettersByPosition[k].letter.toUpperCase())
+        {
+          knownLettersByPosition[k].positions.push(wArray[i].id[2]);
+          check = false;
+        }
+      }
+
+      if(check)
+      {
+        let newWord = new wrongPosLetter();
+        newWord.letter = wArray[i].innerHTML.toUpperCase();
+        newWord.positions = [];
+        newWord.positions.push(wArray[i].id[2]);
+        knownLettersByPosition.push(newWord);
+      }
+    }
+  }
+
+  // remove any wrong position letters from excluded letters
+  if(knownLettersByPosition.length > 0 && excludedLetters.length > 0)
+  {
+    for(let i = 0; i < knownLettersByPosition.length; i++)
+    {
+      for(let e = 0; e < excludedLetters.length; e++)
+      {
+        if(knownLettersByPosition[i].letter === excludedLetters[e])
+        {
+          excludedLetters.splice(e,1);
+        }
+      }
+    }
+  }
+
+  let data = JSON.stringify({
+    'guessedWords' : guessedWords,
+    'excludedLetters' : excludedLetters,
+    'knownLetters' : knownLetters,
+    'knownLettersByPosition' : knownLettersByPosition,
+  });
+  console.log(data);
+  return;
+  Post('FilterByInput', data)
+  .then(FillOutput)
+  .catch((error) => console.error(error));
+}
+
 
 
 // SOLVE LOGIC
 
 const SOLVE_RANDOM = document.getElementById('SOLVE_RANDOM');
 const SOLVE_SOLVE = document.getElementById('SOLVE_SOLVE');
+const SOLVE_TEXT = document.getElementById('SOLVE_TEXT');
 
-async function SolveRandom()
+const LIST_BODY = document.getElementById('LIST_BODY');
+
+function SolveRandom()
 {
-  let data = { };
+  let data = JSON.stringify({ });
   Post('RandomSolve', data)
   .then(FillSolve)
   .catch((error) => console.error(error));
@@ -165,17 +296,147 @@ async function SolveRandom()
 
 function Solve()
 {
-  let data = { solveString };
-  console.log(data);
+  let data = JSON.stringify({ 'solveString' : solveString });
   Post('Solve', data)
-  .then(FillSolve)
+  .then(ResolveSolve)
   .catch((error) => console.error(error));
 }
 
 function FillSolve(result)
 {
-  console.log('result is ' + result);
-  for(let i = 0; i < sLength; i++) sArray[i].innerHTML = result[i];
+  solveString = '';
+  for(let i = 0; i < sLength; i++)
+  {
+    sArray[i].innerHTML = result[i];
+    solveString += result[i];
+    Pop(sArray[i]);
+  }
+}
+
+function ResolveSolve(result)
+{
+  let output = JSON.parse(result);
+  if(output === "-1")
+  {
+    SOLVE_TEXT.innerHTML = "This word is not in the current dictionary.";
+    Pop(SOLVE_TEXT);
+  }
+  else
+  {
+    FillOutput(output[1]);
+    SolveResponse(output[2], output[0]);
+    ToggleScreen(1);
+    SOLVE_TEXT.innerHTML = "";
+  }
+}
+
+async function SolveResponse(outputList, guessList)
+{
+  let guessArr = [];
+  let guessCount = guessList.length;
+  
+  for(let i = 0; i < guessCount; i++)
+  {
+    let iLength = guessList[i].length;
+    
+    if(iLength > 0)
+    {
+      for(var g = 0; g < iLength; g++)
+      {
+        guessArr.push(guessList[i][g]);
+      }
+    }
+  }
+  
+  let newInput = guessArr.toString();
+  let trimResult = newInput.replace(/\s*,\s*|\s+,/g, '');
+  inputString = trimResult;
+  
+  let colorArr = [];
+  for(let i = 0; i < outputList.length; i++)
+  {
+    for(let n = 0; n < outputList[i].length; n++)
+    {
+      colorArr.push(outputList[i][n]);
+    }
+  }
+  
+  let cLength = colorArr.length;
+  
+  // clear array
+  for(let i = 0; i < wLength; i++)
+  {
+    wArray[i].innerHTML = "";
+    wArray[i].style.backgroundColor = "var(--backgroundLight)";
+    wArray[i].dataset.state = "excluded";
+    wArray[i].style.backgroundColor = "var(--backgroundLight)";
+  }
+  
+  // add format to letters
+  for(let i = 0; i < cLength; i++)
+  {   
+    await Sleep(100);
+    
+    wArray[i].innerHTML = guessArr[i];
+    Pop(wArray[i]);
+    
+    if(colorArr[i] === -1)
+    {
+      continue;
+    }
+    else if(colorArr[i] === 1)
+    {
+      wArray[i].dataset.state = "wrongPosition";
+      wArray[i].style.backgroundColor = "var(--yellow)";
+    }
+    else if(colorArr[i] === 2)
+    {
+      wArray[i].dataset.state = "rightPosition";
+      wArray[i].style.backgroundColor = "var(--green)";
+    }
+  }
+}
+
+function FillOutput(wordArray)
+{
+  LIST_BODY.innerHTML = "";
+
+  for(let i = 0; i < wordArray.length; i++)
+  {
+    let row = document.createElement('DIV');
+    row.className = "flex flex-row justify-center items-center w-full max-w-md";
+    row.id = "r" + i;
+
+    // rank id
+    let cell0 = document.createElement('DIV');
+    cell0.className = "rounded-lg w-10 h-10 mx-2 uppercase flex justify-center items-center";
+    cell0.innerHTML = (i + 1);
+    row.appendChild(cell0);
+
+    for(let w = 0; w < wordArray[i][0].length; w++ )
+    {
+      // letters
+      let cell1 = document.createElement('DIV');
+      cell1.className = "rounded-lg w-10 h-10 mx-2 uppercase flex justify-center items-center";
+      cell1.innerHTML = wordArray[i][0][w];
+      row.appendChild(cell1);
+    }
+
+    // score
+    let cell3 = document.createElement('DIV');
+    cell3.className = "rounded-lg w-10 h-10 mx-2 uppercase flex justify-center items-center";
+    if(wordArray[i][1] != null) cell3.innerHTML = wordArray[i][1];
+    row.appendChild(cell3);
+
+    LIST_BODY.appendChild(row);
+  }
+
+  // output from php is always ordered by rank
+  // sortAZ = false;
+
+  // let src1 = "images/crown.svg";
+
+  // ioSort.src = src1;
 }
 
 
@@ -190,9 +451,29 @@ function FillSolve(result)
 const dArray = document.getElementsByClassName('dictionaryButton');
 const dLength = dArray.length;
 
-function ChangeDictionary()
+function ChangeDictionary(newDictionary)
 {
+  let data = JSON.stringify({ 'newDictionary' : newDictionary });
+  Post('ChangeDictionary', data)
+  .then(UpdateDictionary)
+  .catch((error) => console.error(error));
+}
 
+function UpdateDictionary(result)
+{
+  let output = parseInt(JSON.parse(result));
+  console.log(output);
+  for(let i = 0; i < dLength; i++)
+  {
+    if(i === output)
+    {
+      dArray[i].style.backgroundColor = 'var(--green)';
+    }
+    else
+    {
+      dArray[i].style.backgroundColor = 'var(--backgroundLight)';
+    }
+  }
 }
 
 const GUESS_FROM = document.getElementById("GUESS_FROM");
@@ -395,14 +676,14 @@ function FillLetters(type)
       if(array[i].innerHTML != string[i])
       {
         array[i].innerHTML = string[i];
-        AnimateOnInput(array[i]);
+        Pop(array[i]);
       }
     }
     else 
     {
       if(array[i].innerHTML != "")
       {
-        AnimateOnInput(array[i]);
+        Pop(array[i]);
       }
       array[i].innerHTML = "";
     }
@@ -412,7 +693,7 @@ function FillLetters(type)
   {
     if(playing && string.length > ((guessLevel * 5) - 5))
     {
-      if(string.length % 5 == 0)
+      if(string.length % 5 === 0)
       {
         kArray[29].style.backgroundColor = "var(--green)";
       }
@@ -514,7 +795,7 @@ async function Post(trigger, data)
 
 // ANIMATION LOGIC
 
-function AnimateOnInput(panel)
+function Pop(panel)
 {
   panel.animate(
     [
@@ -534,4 +815,9 @@ function AnimateOnInput(panel)
       duration: 100,
     }
   );
+}
+
+function Sleep(ms)
+{
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
