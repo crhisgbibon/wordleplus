@@ -5,31 +5,31 @@
   </div>
 
   <div class='my-2'>
-    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2" style='background-color: var(--backgroundLight);'>1. Minor</button>
+    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2">1. Minor</button>
   </div>
 
   <div class="my-2">
-    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2" style='background-color: var(--backgroundLight);'>2. Small</button>
+    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2">2. Small</button>
   </div>
 
   <div class="my-2">
-    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2" style='background-color: var(--backgroundLight);'>3. Typic</button>
+    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2">3. Typic</button>
   </div>
 
   <div class="my-2">
-    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2" style='background-color: var(--backgroundLight);'>4. Broad</button>
+    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2">4. Broad</button>
   </div>
 
   <div class="my-2">
-    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2" style='background-color: var(--backgroundLight);'>5. Large</button>
+    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2">5. Large</button>
   </div>
 
   <div class="my-2">
-    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2" style='background-color: var(--backgroundLight);'>6. Giant</button>
+    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2">6. Giant</button>
   </div>
 
   <div class="my-2">
-    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2" style='background-color: var(--backgroundLight);'>7. Total</button>
+    <button class="dictionaryButton active:scale-95 hover:scale-105 mx-4 rounded-lg w-24 h-12 p-2">7. Total</button>
   </div>
   
   <div class="my-2">

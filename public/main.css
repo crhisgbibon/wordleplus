@@ -39,6 +39,51 @@
   --hyperlinkLight: rgb(3, 38, 145);
 }
 
+.wordInput[data-state='rightPosition']
+{
+  background-color: var(--green);
+}
+
+.wordInput[data-state='wrongPosition']
+{
+  background-color: var(--yellow);
+}
+
+.wordInput[data-state='excluded']
+{
+  background-color: var(--backgroundLight);
+}
+
+.dictionaryButton[data-state='active']
+{
+  background-color: var(--green);
+}
+
+.dictionaryButton[data-state='inactive']
+{
+  background-color: var(--backgroundLight);
+}
+
+.keyboardButtons[data-state='selected']
+{
+  background-color: var(--green);
+}
+
+.keyboardButtons[data-state='disabled']
+{
+  background-color: var(--backgroundLight);
+}
+
+.control[data-state='active']
+{
+  background-color: var(--green);
+}
+
+.control[data-state='inactive']
+{
+  background-color: var(--transparant);
+}
+
 body{
   font-family: 'Open Sans', sans-serif;
   height: calc(var(--vh) * 100);

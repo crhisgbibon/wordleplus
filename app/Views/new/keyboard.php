@@ -15,7 +15,7 @@
         {
           echo '
           <div class="h-full" style="width: calc( 95% / ' . $buttonCount . ')">
-            <button class="keyboardButtons active:scale-95 hover:scale-105 rounded-lg" style="background-color: var(--backgroundLight); height: 90%; width: 90%;" id="'. $i . $r.'">'.$qwerty[$counter].'</button>
+            <button class="keyboardButtons active:scale-95 hover:scale-105 rounded-lg" style="height: 90%; width: 90%;" id="'. $i . $r.'">'.$qwerty[$counter].'</button>
           </div>
           ';
           $counter++;

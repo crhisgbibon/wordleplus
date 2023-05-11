@@ -9,6 +9,7 @@ function Main()
   {
     b[i].onclick = null;
     b[i].onclick = function() { ToggleScreen(i); };
+    b[i].dataset.state = "inactive";
   }
   RESET_BUTTON.onclick = null;
   RESET_BUTTON.onclick = function() { Main(); };
@@ -17,7 +18,6 @@ function Main()
   for(let i = 0; i < wLength; i++)
   {
     wArray[i].innerHTML = '';
-    wArray[i].style.backgroundColor = 'var(--backgroundLight)';
     wArray[i].dataset.state = "excluded";
     wArray[i].onclick = null;
     wArray[i].onclick = function() { SwitchState(wArray[i]); };
@@ -28,7 +28,8 @@ function Main()
   {
     dArray[i].onclick = null;
     dArray[i].onclick = function() { ChangeDictionary(i); };
-    if(i === 2) dArray[i].style.backgroundColor = 'var(--green)';
+    if(i === 2) dArray[i].dataset.state = 'active';
+    else dArray[i].dataset.state = 'inactive';
   }
   GUESS_FROM.onclick = function() { GuessFrom(); };
 
@@ -41,6 +42,7 @@ function Main()
   {
     kArray[i].onclick = null;
     kArray[i].onclick = function() { Toggle(kArray[i].innerHTML); };
+    kArray[i].dataset.state = 'disabled';
   }
   
   // Clear variables
@@ -123,12 +125,12 @@ function ToggleScreen(index)
   {
     if(index === i)
     {
-      b[i].style.backgroundColor = 'var(--backgroundLight)';
+      b[i].dataset.state = 'active';
       v[i].style.display = '';
     }
     else
     {
-      b[i].style.backgroundColor = 'var(--active)';
+      b[i].dataset.state = 'inactive';
       v[i].style.display = 'none';
     }
   }
@@ -150,17 +152,14 @@ function SwitchState(button)
   if(button.dataset.state === undefined || button.dataset.state === "" || button.dataset.state === "excluded")
   {
     button.dataset.state = "wrongPosition";
-    button.style.backgroundColor = "var(--yellow)";
   }
   else if(button.dataset.state === "wrongPosition")
   {
     button.dataset.state = "rightPosition";
-    button.style.backgroundColor = "var(--green)";
   }
   else if(button.dataset.state === "rightPosition")
   {
     button.dataset.state = "excluded";
-    button.style.backgroundColor = "var(--backgroundLight)";
   }
 }
 
@@ -195,54 +194,41 @@ function FilterByInput()
     if(word.length === 5) guessedWords.push(word);
   }
 
-  // identify known letters + position first
   for(let i = 0; i < wLength; i++)
   {
     if(wArray[i].innerHTML === "" || wArray[i].innerHTML === "-") continue;
 
-    let dataState = wArray[i].dataset.state;
+    let state = wArray[i].dataset.state;
 
     // if known position store directly
-    if(dataState === "rightPosition")
+    if(state === "rightPosition")
     {
-      let letterPos = wArray[i].id[2];
+      let letterPos = wArray[i].id[1];
       knownLetters[letterPos] = wArray[i].innerHTML.toUpperCase();
     }
+
     // if excluded letters then log if not already logged
-    if(dataState === "excluded" || dataState === "" || dataState === undefined)
+    if(state === "excluded" || state === "" || state === undefined)
     {
-      let check = true;
-      for(let e = 0; e < excludedLetters.length; e++)
-      {
-        if(wArray[i].innerHTML.toUpperCase() === excludedLetters[e].toUpperCase())
-        {
-          check = false;
-        }
-      }
-      if(check)
+      if(!excludedLetters.includes(wArray[i].innerHTML.toUpperCase()))
       {
         excludedLetters.push(wArray[i].innerHTML.toUpperCase());
       }
     }
-    if(dataState === "wrongPosition")
+
+    if(state === "wrongPosition")
     {
-      let check = true;
+      const result = knownLettersByPosition.filter(obj => obj.letter === wArray[i].innerHTML.toUpperCase());
 
-      for(let k = 0; k < knownLettersByPosition.length; k++)
+      if(result.length > 0)
       {
-        if(wArray[i].innerHTML.toUpperCase() === knownLettersByPosition[k].letter.toUpperCase())
-        {
-          knownLettersByPosition[k].positions.push(wArray[i].id[2]);
-          check = false;
-        }
+        result[0].positions.push(wArray[i].id[1]);
       }
-
-      if(check)
+      else
       {
         let newWord = new wrongPosLetter();
         newWord.letter = wArray[i].innerHTML.toUpperCase();
-        newWord.positions = [];
-        newWord.positions.push(wArray[i].id[2]);
+        newWord.positions = [ wArray[i].id[1] ];
         knownLettersByPosition.push(newWord);
       }
     }
@@ -253,12 +239,9 @@ function FilterByInput()
   {
     for(let i = 0; i < knownLettersByPosition.length; i++)
     {
-      for(let e = 0; e < excludedLetters.length; e++)
+      if(excludedLetters.includes(knownLettersByPosition[i].letter))
       {
-        if(knownLettersByPosition[i].letter === excludedLetters[e])
-        {
-          excludedLetters.splice(e,1);
-        }
+        excludedLetters.splice(excludedLetters.indexOf(knownLettersByPosition[i].letter), 1);
       }
     }
   }
@@ -269,10 +252,26 @@ function FilterByInput()
     'knownLetters' : knownLetters,
     'knownLettersByPosition' : knownLettersByPosition,
   });
-  console.log(data);
-  return;
   Post('FilterByInput', data)
-  .then(FillOutput)
+  .then(result => {
+    FillOutput(JSON.parse(result));
+    ToggleScreen(2);
+  })
+  .catch((error) => console.error(error));
+}
+
+function FilterByKeys()
+{
+  const diff = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(c => !keyboardString.includes(c)).join('');
+  let data = JSON.stringify({
+    'excludedLetters' : diff
+  });
+  console.log(data);
+  Post('FilterByKeys', data)
+  .then(result => {
+    FillOutput(JSON.parse(result));
+    ToggleScreen(2);
+  })
   .catch((error) => console.error(error));
 }
 
@@ -367,9 +366,7 @@ async function SolveResponse(outputList, guessList)
   for(let i = 0; i < wLength; i++)
   {
     wArray[i].innerHTML = "";
-    wArray[i].style.backgroundColor = "var(--backgroundLight)";
     wArray[i].dataset.state = "excluded";
-    wArray[i].style.backgroundColor = "var(--backgroundLight)";
   }
   
   // add format to letters
@@ -387,12 +384,10 @@ async function SolveResponse(outputList, guessList)
     else if(colorArr[i] === 1)
     {
       wArray[i].dataset.state = "wrongPosition";
-      wArray[i].style.backgroundColor = "var(--yellow)";
     }
     else if(colorArr[i] === 2)
     {
       wArray[i].dataset.state = "rightPosition";
-      wArray[i].style.backgroundColor = "var(--green)";
     }
   }
 }
@@ -462,17 +457,10 @@ function ChangeDictionary(newDictionary)
 function UpdateDictionary(result)
 {
   let output = parseInt(JSON.parse(result));
-  console.log(output);
   for(let i = 0; i < dLength; i++)
   {
-    if(i === output)
-    {
-      dArray[i].style.backgroundColor = 'var(--green)';
-    }
-    else
-    {
-      dArray[i].style.backgroundColor = 'var(--backgroundLight)';
-    }
+    if(i === output) dArray[i].dataset.state = 'active';
+    else dArray[i].dataset.state = 'inactive';
   }
 }
 
@@ -503,9 +491,6 @@ const sLength = sArray.length;
 
 const nameArray = document.getElementsByClassName("nameInput");
 const nameLength = nameArray.length;
-
-const toggleLetters = [];
-let tLen = 0;
 
 let playing = ''; // empty = not playing - arcade, daily, random = that game mode
 let keyboardsearch = false;
@@ -695,11 +680,11 @@ function FillLetters(type)
     {
       if(string.length % 5 === 0)
       {
-        kArray[29].style.backgroundColor = "var(--green)";
+        kArray[29].dataset.state = 'selected';
       }
       else
       {
-        kArray[29].style.backgroundColor = "var(--backgroundLight)";
+        kArray[29].dataset.state = 'disabled';
       }
     }
   }
@@ -749,11 +734,11 @@ function KeyboardSearchKeys()
   {
     for(let i = 0; i < kLength; i++)
     {
-      if(keyboardString.includes(kArray[i].innerHTML.toUpperCase()) || kArray[i].innerHTML === '?') kArray[i].style.backgroundColor = 'var(--green)';
-      else kArray[i].style.backgroundColor = 'var(--backgroundLight)';
+      if(keyboardString.includes(kArray[i].innerHTML.toUpperCase()) || kArray[i].innerHTML === '?') kArray[i].dataset.state = 'selected';
+      else kArray[i].dataset.state = 'disabled';
     }
   }
-  else for(let i = 0; i < kLength; i++) kArray[i].style.backgroundColor = 'var(--backgroundLight)';
+  else for(let i = 0; i < kLength; i++) kArray[i].dataset.state = 'disabled';
 }
 
 

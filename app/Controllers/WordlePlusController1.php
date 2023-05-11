@@ -204,10 +204,10 @@ class WordlePlusController1 extends BaseController
     $knownLetters = (array)$data->knownLetters;
     $knownLettersByPosition = (array)$data->knownLettersByPosition;
 
-    if(isset($guessedWords)) $gLen = count($guessedWords);
-    if(isset($excludedLetters)) $eLen = count($excludedLetters);
-    if(isset($knownLetters)) $kLen = count($knownLetters);
-    if(isset($knownLettersByPosition)) $pLen = count($knownLettersByPosition);
+    $gLen = count($guessedWords);
+    $eLen = count($excludedLetters);
+    $kLen = count($knownLetters);
+    $pLen = count($knownLettersByPosition);
     
     $wordOutput = [];
     
@@ -217,28 +217,38 @@ class WordlePlusController1 extends BaseController
     {
       $wordToCheck = str_split($this->wordsRemaining[$i][0]);
       $hide = false;
+
+
+
       if(isset($knownLetters))
       {
         for($a = 0; $a < $kLen; $a++)
         {
-          if($knownLetters[$a] != "-1")
+          if($knownLetters[$a] !== "-1")
           {
-            if($wordToCheck[$a] != $knownLetters[$a]) $hide = true;
+            if($wordToCheck[$a] !== $knownLetters[$a]) $hide = true;
           }
         }
       }
       
-      if(isset($excludedLetters))
+
+
+      if(isset($excludedLetters) && !$hide)
       {
+        // for each excluded letter
         for($a = 0; $a < $eLen; $a++)
         {
+          // check if the word has the letter
           if(in_array($excludedLetters[$a], $wordToCheck))
           {
+            // get the positions where the excluded letter appears in the known letters, if any
             $key = array_keys($knownLetters, $excludedLetters[$a]);
             $keyLen = count($key);
             
+            // get the positions where the excluded letter appears in the target word, if any
             $check = array_keys($wordToCheck, $excludedLetters[$a]);
             $checkLen = count($check);
+            // if the letter appears less times in the known letters than the target word, pass on this word
             if($keyLen < $checkLen)
             {
               $hide = true;
@@ -247,20 +257,22 @@ class WordlePlusController1 extends BaseController
         }
       }
       
+
+
       // check the letter does appear
       // check the letter does not appear at a logged position
       // check the letter does not appear in wordToCheck more times than in the guessed word
-      if(isset($knownLettersByPosition))
+      if(isset($knownLettersByPosition) && !$hide)
       {
         // for each entry in known letters by position
         for($a = 0; $a < $pLen; $a++)
         {
           // is the letter in the word at all, if not then hide
-          if(in_array($knownLettersByPosition[$a]["letter"], $wordToCheck))
+          if(in_array($knownLettersByPosition[$a]->letter, $wordToCheck))
           {
             // get the position/s of where the letter is in the word and get positions count
-            $positionsCount = count($knownLettersByPosition[$a]["positions"]);
-            $indexL = array_keys($wordToCheck, $knownLettersByPosition[$a]["letter"]);
+            $positionsCount = count($knownLettersByPosition[$a]->positions);
+            $indexL = array_keys($wordToCheck, $knownLettersByPosition[$a]->letter);
             $cCount = count($indexL);
             
             // if the letter is in the word, if it is at a voided position then hide
@@ -268,7 +280,7 @@ class WordlePlusController1 extends BaseController
             {
               for($m = 0; $m < $positionsCount; $m++)
               {
-                if($knownLettersByPosition[$a]["positions"][$m] == $indexL[$p])
+                if($knownLettersByPosition[$a]->positions[$m] == $indexL[$p])
                 {
                   $hide = true;
                 }
@@ -293,6 +305,54 @@ class WordlePlusController1 extends BaseController
     
     $this->wordsRemaining = $process->ScoreArray($wordOutput);
   
+    usort($this->wordsRemaining, function($a, $b) {
+      if ($a[1] == $b[1]) return 0;
+      return $a[1] < $b[1] ? 1 : -1;
+    });
+    
+    echo json_encode($this->wordsRemaining, JSON_UNESCAPED_UNICODE);
+  }
+
+  public function FilterByKeys()
+  {
+    $process = new WordleProcessModel();
+
+    $this->Boot((int)$this->session->get('dictionary'));
+    $data = json_decode($this->request->getVar('data'));
+
+    $excludedLetters = str_split((string)$data->excludedLetters);
+    $eLen = count($excludedLetters);
+    
+    $wordOutput = [];
+    $wLen = count($this->wordsRemaining);
+    
+    for($i = 0; $i < $wLen; $i++)
+    {
+      
+      $wordToCheck = str_split($this->wordsRemaining[$i][0]);
+      
+      $hide = false;
+      
+      if(isset($excludedLetters))
+      {
+        for($a = 0; $a < $eLen; $a++)
+        {
+          if(in_array($excludedLetters[$a], $wordToCheck))
+          {
+            $hide = true;
+          }
+        }
+      }
+      
+      if(!$hide)
+      {
+        $el = array($wordToCheck, 0);
+        array_push($wordOutput, $el);
+      }
+    }
+    
+    $this->wordsRemaining = $process->ScoreArray($wordOutput);
+    
     usort($this->wordsRemaining, function($a, $b) {
       if ($a[1] == $b[1]) return 0;
       return $a[1] < $b[1] ? 1 : -1;
