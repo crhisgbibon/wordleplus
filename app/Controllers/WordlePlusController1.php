@@ -451,16 +451,65 @@ class WordlePlusController1 extends BaseController
     $this->Boot((int)$this->session->get('dictionary'));
     $data = json_decode($this->request->getVar('data'));
 
-    $gameState = strtoupper((string)$data->gameState);
+    $playing = strtoupper((string)$data->playing);
 
-    if(isset($gameState))
+    if(isset($playing))
     {      
-      if($gameState === "D")
+      if($playing === "D")
       {
         if(!$this->session->has('dailyWord')) return json_encode("NoWord");
         else return json_encode($this->session->get('dailyWord'));
       }
-      else if($gameState === "R") return json_encode($this->session->get('wordToGuess'));
+      else if($playing === "R") return json_encode($this->session->get('wordToGuess'));
+    }
+  }
+
+  public function StartDaily()
+  {
+    $model = new WordlePlusModel();
+
+    $this->Boot((int)$this->session->get('dictionary'));
+    $data = json_decode($this->request->getVar('data'));
+    
+    try
+    {
+      $result = $model->GetWord();
+      $resultLength = count($result);
+      
+      // if more than 1 word obtained, cull all but one and delete the excess from the record
+      if($resultLength > 1)
+      {
+        // if so then randomly pick a word to be saved
+        $pickSave = array_rand($result);
+        $this->session->set('dailyWord', $result[$pickSave]);
+        
+        // cull the rest from the database
+        for($i = 0; $i < $resultLength; $i++)
+        {
+          if($result[$i] != $this->session->get('dailyWord'))
+          {
+            $deleted = $model->DeleteWord();
+          }
+        }
+      }
+      else if($resultLength === 1)
+      {
+        // if only 1 result then that is the global daily word
+        $this->session->set('dailyWord', $result[0]->word);
+      }
+      else if($resultLength === 0)
+      {
+        // if there was no result then pick a word and save it
+        $arrayLength = count($this->w);
+        $pickDailyWord = array_rand($this->w);
+        $this->session->set('dailyWord', $this->w[$pickDailyWord][0]);
+
+        $insert = $model->InsertWord($this->session->get('dailyWord'));
+      }
+    }
+    catch(exception $e)
+    {
+      return json_encode("Connection failed.");
     }
   }
 }

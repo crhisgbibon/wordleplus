@@ -10,7 +10,7 @@
     
     for($i = 0; $i < $rowCount; $i++)
     {
-      echo '<div class="flex flex-row justify-center items-center" style="height: calc( (var(--vh) * 25) / ' . $rowCount . ' ); min-width:100%;">';
+      echo '<div class="flex flex-row justify-center items-center pt-px" style="height: calc( (var(--vh) * 25) / ' . $rowCount . ' ); min-width:100%;">';
         for($r = 0; $r < $buttonCount; $r++)
         {
           echo '

@@ -43,7 +43,7 @@ $routes->post('FilterByInput', [WordlePlusController1::class, 'FilterByInput']);
 $routes->post('FilterByKeys', [WordlePlusController1::class, 'FilterByKeys']);
 
 $routes->post('NewGame', [WordlePlusController1::class, 'NewGame']);
-$routes->post('StartDaily', [WordlePlusController1::class, 'startDaily']);
+$routes->post('StartDaily', [WordlePlusController1::class, 'StartDaily']);
 
 $routes->post('SubmitGuess', [WordlePlusController1::class, 'SubmitGuess']);
 

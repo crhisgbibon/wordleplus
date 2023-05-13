@@ -8,7 +8,24 @@ function Main()
   for(let i = 0; i < bLen; i++)
   {
     b[i].onclick = null;
-    b[i].onclick = function() { ToggleScreen(i); };
+    if(b[i] !== PLAY_BUTTON)
+    {
+      b[i].onclick = function() { ToggleScreen(i); };
+    }
+    else
+    {
+      b[i].onclick = function() {
+        if(playing === '') ToggleScreen(i);
+        else
+        {
+          BUTTON_PANEL.style.display = '';
+          PLAY_PANEL.style.display = 'none';
+          playing = '';
+          for(let i = 0; i < kLength; i++) kArray[i].dataset.state = 'disabled';
+          ToggleScreen(1);
+        }
+      };
+    }
   }
   RESET_BUTTON.onclick = null;
   RESET_BUTTON.onclick = function() { Reset(); };
@@ -16,6 +33,8 @@ function Main()
   // Assign PLAY buttons
   PLAY_RANDOM.onclick = null;
   PLAY_RANDOM.onclick = function() { PlayRandom(); };
+  PLAY_DAILY.onclick = null;
+  PLAY_DAILY.onclick = function() { PlayDaily(); };
 
   // Assign GUESS buttons
   for(let i = 0; i < wLength; i++)
@@ -50,10 +69,7 @@ function Main()
 
 function Reset()
 {
-  for(let i = 0; i < bLen; i++)
-  {
-    b[i].dataset.state = "inactive";
-  }
+  for(let i = 0; i < bLen; i++) b[i].dataset.state = "inactive";
   for(let i = 0; i < wLength; i++)
   {
     wArray[i].innerHTML = '';
@@ -64,10 +80,7 @@ function Reset()
     if(i === 2) dArray[i].dataset.state = 'active';
     else dArray[i].dataset.state = 'inactive';
   }
-  for(let i = 0; i < kLength; i++)
-  {
-    kArray[i].dataset.state = 'disabled';
-  }
+  for(let i = 0; i < kLength; i++) kArray[i].dataset.state = 'disabled';
 
   playing = '';
   keyboardsearch = false;
@@ -85,6 +98,67 @@ function Reset()
 }
 
 document.addEventListener('DOMContentLoaded', Main);
+
+
+
+
+
+
+
+
+// LOCALSTORAGE LOGIC
+
+// retrieve JSON from local storage of random results
+let savedResultsRandom = [];
+let savedCurrentStreakRandom = 0;
+let savedMaxStreakRandom = 0;
+
+if(localStorage.savedResultsRandom) savedResultsRandom = JSON.parse(localStorage.savedResultsRandom);
+else savedResultsRandom = [];
+
+if(localStorage.savedResultsRandom) savedCurrentStreakRandom = localStorage.savedCurrentStreakRandom;
+else savedCurrentStreakRandom = 0;
+
+if(localStorage.savedMaxStreakRandom) savedMaxStreakRandom = localStorage.savedMaxStreakRandom;
+else savedMaxStreakRandom = 0;
+
+// retrieve JSON from local storage of daily results
+let savedResultsDaily = [];
+let savedCurrentStreakDaily = 0;
+let savedMaxStreakDaily = 0;
+// additionally need to save the last daily completed and the guesses used
+// this loads in if user has only partially or wholly completed wordle
+// date saved as string YYYY-MM-DD
+let savedDailyLastDatePlayed = "";
+// guesses saved as JSON list, parsed into JS array
+// boolean to determine when loading saves so not to save reload as new victory
+let loadingSaves = false;
+let savedDailyLastGuessSet = [];
+
+if(localStorage.savedResultsDaily) savedResultsDaily = JSON.parse(localStorage.savedResultsDaily);
+else savedResultsDaily = [];
+
+if(localStorage.savedCurrentStreakDaily) savedCurrentStreakDaily = localStorage.savedCurrentStreakDaily;
+else savedCurrentStreakDaily = 0;
+
+if(localStorage.savedMaxStreakDaily) savedMaxStreakDaily = localStorage.savedMaxStreakDaily;
+else savedMaxStreakDaily = 0;
+
+// saved data on current day's game
+if(localStorage.savedDailyLastDatePlayed) savedDailyLastDatePlayed = localStorage.savedDailyLastDatePlayed;
+else savedDailyLastDatePlayed = "";
+
+if(localStorage.savedDailyLastGuessSet) savedDailyLastGuessSet = JSON.parse(localStorage.savedDailyLastGuessSet);
+else savedDailyLastGuessSet = [];
+
+
+
+
+
+
+
+
+
 
 
 
@@ -203,6 +277,13 @@ function PlayDaily()
   
   playing = 'D';
   guessLevel = 1;
+
+  let data = JSON.stringify({  });
+  Post('StartDaily', data)
+  .then(result => {
+    console.log(result);
+  })
+  .catch((error) => console.error(error));
 }
 
 
@@ -219,18 +300,11 @@ function SwitchState(button)
 {
   if(playing !== '') return;
 
-  if(button.dataset.state === undefined || button.dataset.state === "" || button.dataset.state === "excluded")
-  {
-    button.dataset.state = "wrongPosition";
-  }
-  else if(button.dataset.state === "wrongPosition")
-  {
-    button.dataset.state = "rightPosition";
-  }
-  else if(button.dataset.state === "rightPosition")
-  {
-    button.dataset.state = "excluded";
-  }
+  if(button.dataset.state === undefined || 
+    button.dataset.state === "" || 
+    button.dataset.state === "excluded") button.dataset.state = "wrongPosition";
+  else if(button.dataset.state === "wrongPosition") button.dataset.state = "rightPosition";
+  else if(button.dataset.state === "rightPosition") button.dataset.state = "excluded";
 }
 
 function FilterByInput()
@@ -280,20 +354,14 @@ function FilterByInput()
     // if excluded letters then log if not already logged
     if(state === "excluded" || state === "" || state === undefined)
     {
-      if(!excludedLetters.includes(wArray[i].innerHTML.toUpperCase()))
-      {
-        excludedLetters.push(wArray[i].innerHTML.toUpperCase());
-      }
+      if(!excludedLetters.includes(wArray[i].innerHTML.toUpperCase())) excludedLetters.push(wArray[i].innerHTML.toUpperCase());
     }
 
     if(state === "wrongPosition")
     {
       const result = knownLettersByPosition.filter(obj => obj.letter === wArray[i].innerHTML.toUpperCase());
 
-      if(result.length > 0)
-      {
-        result[0].positions.push(wArray[i].id[1]);
-      }
+      if(result.length > 0) result[0].positions.push(wArray[i].id[1]);
       else
       {
         let newWord = new wrongPosLetter();
@@ -309,10 +377,7 @@ function FilterByInput()
   {
     for(let i = 0; i < knownLettersByPosition.length; i++)
     {
-      if(excludedLetters.includes(knownLettersByPosition[i].letter))
-      {
-        excludedLetters.splice(excludedLetters.indexOf(knownLettersByPosition[i].letter), 1);
-      }
+      if(excludedLetters.includes(knownLettersByPosition[i].letter)) excludedLetters.splice(excludedLetters.indexOf(knownLettersByPosition[i].letter), 1);
     }
   }
 
@@ -346,13 +411,14 @@ function FilterByKeys()
 
 function SubmitGuess()
 {
-	let guess = '';
+  if(playing === '') return;
+  let guess = '';
   let guessNum = ( guessLevel - 1 ) * 5;
   guess =  wArray[0 + guessNum].innerHTML + 
-                  wArray[1 + guessNum].innerHTML + 
-                  wArray[2 + guessNum].innerHTML + 
-                  wArray[3 + guessNum].innerHTML + 
-                  wArray[4 + guessNum].innerHTML;
+           wArray[1 + guessNum].innerHTML + 
+           wArray[2 + guessNum].innerHTML + 
+           wArray[3 + guessNum].innerHTML + 
+           wArray[4 + guessNum].innerHTML;
 
   let data = JSON.stringify({
     'inputString' : inputString,
@@ -360,11 +426,8 @@ function SubmitGuess()
     'playing' : playing,
   });
 
-  console.log(data);
-
   Post('SubmitGuess', data)
   .then(result => {
-    console.log(result);
     ProcessGuess(result);
   })
   .catch((error) => console.error(error));
@@ -382,19 +445,13 @@ function ProcessGuess(json)
     kArray[28].style.backgroundColor = "var(--yellow)";
     Pop(PLAY_PANEL);
   }
-  else
-  {
-    UpdatePostGuess(result);
-  }
+  else UpdatePostGuess(result);
 }
 
 async function UpdatePostGuess(guesses)
 {
-  // console.log(guesses);
-
   let winCount = 0;
   let keys = Array.from(kArray).map(key => key.innerHTML);
-  // console.log(keys);
 
   for(let g = 0; g < guesses.length; g++)
   {
@@ -406,7 +463,6 @@ async function UpdatePostGuess(guesses)
       {
         await Sleep(100);
         Pop(wArray[index]);
-        // console.log('index is ' + index + ', guess result is ' + guesses[g][i]);
 
         if(guesses[g][i] === 1) wArray[index].dataset.state = "wrongPosition";
         else if(guesses[g][i] === 2)
@@ -417,10 +473,7 @@ async function UpdatePostGuess(guesses)
         else wArray[index].dataset.state = "excluded";
       }
 
-      // console.log(inputString[index]);
-
       let keyIndex = keys.indexOf(inputString[index].toUpperCase());
-      // console.log(keyIndex);
 
       if(guesses[g][i] == -1) kArray[keyIndex].dataset.state = "disabled";
       else if([g][i] == 1) kArray[keyIndex].dataset.state = "yellow";
@@ -441,8 +494,7 @@ async function UpdatePostGuess(guesses)
     
     localStorage.setItem("savedDailyLastDatePlayed", saveDate);
     
-    // save inputString as guess array
-    let output2 = [];
+    let saveArray = [];
     let inputLength = inputString.length;
     
     for(let i = 0; i < inputLength; i+=5)
@@ -452,11 +504,10 @@ async function UpdatePostGuess(guesses)
       inputString[i + 2] + 
       inputString[i + 3] + 
       inputString[i + 4];
-      output2.push(newWord.toUpperCase());
+      saveArray.push(newWord.toUpperCase());
     }
     
-    let dailyGuesses = JSON.stringify(output2);
-    savedDailyLastGuessSet = output2;
+    let dailyGuesses = JSON.stringify(saveArray);
     
     localStorage.setItem("savedDailyLastGuessSet", dailyGuesses);
   }
@@ -473,95 +524,74 @@ function EndGame(winState)
     'playing' : playing,
   });
 
-  console.log(data);
-
   Post('PostGame', data)
   .then(json => {
-    console.log(json);
     ConfirmResult(json, winState);
+    SaveResult(winState);
   })
   .catch((error) => console.error(error));
 }
 
 function ConfirmResult(json, winState)
 {
-  let result = JSON.parse(json);
+  let answer = JSON.parse(json);
 
-  let src1 = "images/search.svg";
+  let src = "images/search.svg";
+
+  let solve = document.createElement('button');
+  solve.className = 'mx-4 active:scale-95 hover:scale-105';
+  let img = document.createElement('img');
+  img.src = src;
+  solve.appendChild(img);
+  solve.onclick = function() {
+    solveString = answer;
+    for(let i = 0; i < kLength; i++) if(kArray[i].dataset.state !== 'disabled') kArray[i].dataset.state = 'disabled';
+    Solve();
+  };
  
-  if(playing === "R" || playing === "D")
+  if(winState === "won")
   {
-    if(winState === "won")
-    {
-      let button = document.createElement('button');
-      button.innerHTML = `<img class="playSolveImg" src=` + src1 + `></img>`;
-      button.onclick = function() { SolveAfterGame(theAnswer); };
-      button.id = "solveAfterGameButton";
-      button.className = "playSolveButtons";
-      PLAY_PANEL.innerHTML = `Well done.   `;
-      PLAY_PANEL.appendChild(button);
-      if(gameState == "Random")
-      {
-        let button = document.createElement('button');
-        button.innerHTML = `+`;
-        button.onclick = function() { NewGameAfterGame(); };
-        button.id = "newGameAfterGameButton";
-        button.className = "playSolveButtons";
-        PLAY_PANEL.appendChild(button);
-      }
-    }
-    else if(winState === "lose")
-    { 
-      let button = document.createElement('button');
-      button.innerHTML = `<img class="playSolveImg" src=` + src1 + `></img></button>`;
-      button.onclick = function() { SolveAfterGame(theAnswer); };
-      button.id = "solveAfterGameButton";
-      button.className = "playSolveButtons";
-      PLAY_PANEL.innerHTML = `It was ` + theAnswer + `. `;
-      PLAY_PANEL.appendChild(button);
-      if(gameState == "Random")
-      {
-        let button = document.createElement('button');
-        button.innerHTML = `+`;
-        button.onclick = function() { NewGameAfterGame(); };
-        button.id = "newGameAfterGameButton";
-        button.className = "playSolveButtons";
-        PLAY_PANEL.appendChild(button);
-      }
-    }
+    PLAY_PANEL.innerHTML = `Well done.`;
+    PLAY_PANEL.appendChild(solve);
   }
+  else if(winState === "lose")
+  { 
+    PLAY_PANEL.innerHTML = `It was ` + answer + `. `;
+    PLAY_PANEL.appendChild(solve);
+  }
+
+  if(playing === "R")
+  {
+    let another = document.createElement('button');
+    another.className = 'mx-4 active:scale-95 hover:scale-105';
+    another.innerHTML = `+`;
+    another.onclick = function() { PlayRandom(); };
+    PLAY_PANEL.appendChild(another);
+  }
+
   Pop(PLAY_PANEL);
 }
 
-function SaveResult(guessLevel, winState)
+function SaveResult(winState)
 {
   // if lost the game increment guessLevel to distinguish from games where got it in 6
-  if(winState == "lose") guessLevel++;
+  if(winState === "lose") guessLevel++;
 
   /*
-    guesslevel is 1 more than number of guesses so 7 = 6, and 8 = didn't get it
+    guesslevel is 1 more than number of guesses so 7 = won in 6, and 8 = didn't get it
     savedResultsRandom saves list of guesses
-    if guessLevel 7 or less, increment current streak
-    if currentstreak bigger than max streak, update, else reset
+    if guessLevel 7 or less, increment current win streak
+    if currentstreak bigger than max win streak, update, else reset
   */
   
-  if(gameState === "Random")
+  if(playing === "R")
   {
     savedResultsRandom.push(guessLevel);
   
-    if(guessLevel < 7)
-    {
-      savedCurrentStreakRandom++;
-    }
-    else
-    {
-      savedCurrentStreakRandom = 0;
-    }
+    if(guessLevel < 7) savedCurrentStreakRandom++;
+    else savedCurrentStreakRandom = 0;
     
-    if(savedCurrentStreakRandom > savedMaxStreakRandom)
-    {
-      savedMaxStreakRandom = savedCurrentStreakRandom;
-    }
+    if(savedCurrentStreakRandom > savedMaxStreakRandom) savedMaxStreakRandom = savedCurrentStreakRandom;
     
     let output = JSON.stringify(savedResultsRandom);
     
@@ -572,9 +602,9 @@ function SaveResult(guessLevel, winState)
       localStorage.setItem("savedMaxStreakRandom", savedMaxStreakRandom);
     }
   }
-  else if(gameState === "Daily")
+  else if(playing === "D")
   {
-    // don't do anything if loading saves
+    // don't do anything if loading saves from early daily attempt on same day
     if(loadingSaves)
     {
       loadingSaves = false;
@@ -599,19 +629,10 @@ function SaveResult(guessLevel, winState)
     
     savedResultsDaily.push(guessLevel);
   
-    if(guessLevel < 7)
-    {
-      savedCurrentStreakDaily++;
-    }
-    else
-    {
-      savedCurrentStreakDaily = 0;
-    }
+    if(guessLevel < 7) savedCurrentStreakDaily++;
+    else savedCurrentStreakDaily = 0;
     
-    if(savedCurrentStreakDaily > savedMaxStreakDaily)
-    {
-      savedMaxStreakDaily = savedCurrentStreakDaily;
-    }
+    if(savedCurrentStreakDaily > savedMaxStreakDaily) savedMaxStreakDaily = savedCurrentStreakDaily;
     
     let output = JSON.stringify(savedResultsDaily);
     
@@ -668,10 +689,7 @@ function FilterWords()
       {
         let filterL = filterLetters[a].replace(/\s/g, "");
         let divL = allDiv[i].children[a + 1].innerHTML.replace(/\s/g, "");
-        if(filterL != divL)
-        {
-          check = true;
-        }
+        if(filterL != divL) check = true;
       }
     }
     if(check) allDiv[i].style.display = "none";
@@ -744,13 +762,7 @@ async function SolveResponse(outputList, guessList)
   {
     let iLength = guessList[i].length;
     
-    if(iLength > 0)
-    {
-      for(var g = 0; g < iLength; g++)
-      {
-        guessArr.push(guessList[i][g]);
-      }
-    }
+    if(iLength > 0) for(var g = 0; g < iLength; g++) guessArr.push(guessList[i][g]);
   }
   
   let newInput = guessArr.toString();
@@ -760,10 +772,7 @@ async function SolveResponse(outputList, guessList)
   let colorArr = [];
   for(let i = 0; i < outputList.length; i++)
   {
-    for(let n = 0; n < outputList[i].length; n++)
-    {
-      colorArr.push(outputList[i][n]);
-    }
+    for(let n = 0; n < outputList[i].length; n++) colorArr.push(outputList[i][n]);
   }
   
   let cLength = colorArr.length;
@@ -783,18 +792,9 @@ async function SolveResponse(outputList, guessList)
     wArray[i].innerHTML = guessArr[i];
     Pop(wArray[i]);
     
-    if(colorArr[i] === -1)
-    {
-      continue;
-    }
-    else if(colorArr[i] === 1)
-    {
-      wArray[i].dataset.state = "wrongPosition";
-    }
-    else if(colorArr[i] === 2)
-    {
-      wArray[i].dataset.state = "rightPosition";
-    }
+    if(colorArr[i] === -1) continue;
+    else if(colorArr[i] === 1) wArray[i].dataset.state = "wrongPosition";
+    else if(colorArr[i] === 2) wArray[i].dataset.state = "rightPosition";
   }
 }
 
@@ -965,19 +965,13 @@ function Toggle(key)
         let i = keyboardString.indexOf(key);
         keyboardString = keyboardString.slice(0, i) + keyboardString.slice(i + 1, keyboardString.length);
       }
-      else
-      {
-        keyboardString += key.toUpperCase();
-      }
+      else keyboardString += key.toUpperCase();
       KeyboardSearchKeys();
     }
   }
   else
   {
-    if(playing !== '')
-    {
-      if(inputString.length >= (guessLevel * 5)) return;
-    }
+    if(playing !== '') if(inputString.length >= (guessLevel * 5)) return;
     if(LIST.style.display === '') AddLetter(key, 'LIST');
     if(GUESS.style.display === '') AddLetter(key, 'GUESS');
     if(SOLVE.style.display === '') AddLetter(key, 'SOLVE');
@@ -1049,10 +1043,7 @@ function FillLetters(type)
     }
     else 
     {
-      if(array[i].innerHTML != "")
-      {
-        Pop(array[i]);
-      }
+      if(array[i].innerHTML != "") Pop(array[i]);
       array[i].innerHTML = "";
     }
   }
@@ -1061,21 +1052,12 @@ function FillLetters(type)
   {
     if(playing !== '')
     {
-      if(string.length === ( guessLevel * 5 ) )
-      {
-        kArray[28].dataset.state = 'selected';
-      }
-      else
-      {
-        kArray[28].dataset.state = 'disabled';
-      }
+      if(string.length === ( guessLevel * 5 ) ) kArray[28].dataset.state = 'selected';
+      else kArray[28].dataset.state = 'disabled';
     }
   }
 
-  if(type === "LIST")
-  {
-    FilterWords();
-  }
+  if(type === "LIST") FilterWords();
 }
 
 function KeyboardSearchKeys()
@@ -1152,7 +1134,4 @@ function Pop(panel)
   );
 }
 
-function Sleep(ms)
-{
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+function Sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
