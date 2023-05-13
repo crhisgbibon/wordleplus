@@ -68,10 +68,7 @@ class WordlePlusController1 extends BaseController
           .view('new/dictionary')
           .view('new/info')
 
-          .view('new/clue')
-          .view('new/name')
           .view('new/chart')
-          .view('new/leaderboard')
 
           .view('new/keyboard')
 
@@ -167,8 +164,8 @@ class WordlePlusController1 extends BaseController
     });
     
     $guessResultArray = array();
-    $gCount = count($guessList);
-    for($g = 0; $g < $gCount; $g++)
+    $inputStringCount = count($guessList);
+    for($g = 0; $g < $inputStringCount; $g++)
     {
       $r = $process->Evaluate($guessList[$g], $solveAttempt);
       array_push($guessResultArray, $r);
@@ -322,7 +319,6 @@ class WordlePlusController1 extends BaseController
 
     $excludedLetters = str_split((string)$data->excludedLetters);
     $eLen = count($excludedLetters);
-    
     $wordOutput = [];
     $wLen = count($this->wordsRemaining);
     
@@ -346,7 +342,7 @@ class WordlePlusController1 extends BaseController
       
       if(!$hide)
       {
-        $el = array($wordToCheck, 0);
+        $el = [$wordToCheck, 0];
         array_push($wordOutput, $el);
       }
     }
@@ -359,5 +355,112 @@ class WordlePlusController1 extends BaseController
     });
     
     echo json_encode($this->wordsRemaining, JSON_UNESCAPED_UNICODE);
+  }
+
+  public function NewGame()
+  {
+    $this->Boot((int)$this->session->get('dictionary'));
+    $pick = array_rand($this->wordsRemaining);
+    $this->session->set('wordToGuess', $this->wordsRemaining[$pick][0]);
+    return (string)$this->session->get('wordToGuess');
+  }
+
+  public function SubmitGuess()
+  {
+    $process = new WordleProcessModel();
+
+    $this->Boot((int)$this->session->get('dictionary'));
+    $data = json_decode($this->request->getVar('data'));
+
+    $inputString = strtoupper((string)$data->inputString);
+    $guess = strtoupper((string)$data->guess);
+    $playing = strtoupper((string)$data->playing);
+
+    if($playing === 'R') $answer = $this->session->get('wordToGuess');
+    else if($playing === 'D') $answer = $this->session->get('dailyWord');
+    else return json_encode("NoWord");
+    
+    $resultArray = array(-1, -1, -1, -1, -1);
+    $guessToArray = str_split($guess);
+    $guessToArrayCount = count($guessToArray);
+    $answerToArray = str_split($answer);
+    
+    if($guessToArrayCount < 5) return json_encode("LessThanFive");
+    
+    $searchForWord = array_search($guess, array_column($this->wordsRemaining, 0));
+    if($searchForWord === false) return json_encode("NotInArray");
+    
+    $usedAllLetters = true;
+    
+    
+    $inputStringArray = str_split($inputString);
+    $inputStringCount = count($inputStringArray);
+  
+    $guessResultArray = [];
+    $guessList = [];
+    
+    for($g = 0; $g < $inputStringCount; $g+= 5)
+    {
+      $guessToEval = $inputStringArray[$g] .
+      $inputStringArray[$g + 1] .
+      $inputStringArray[$g + 2] .
+      $inputStringArray[$g + 3] .
+      $inputStringArray[$g + 4];
+      
+      $r = $process->Evaluate($guessToEval, $answer);
+      
+      array_push($guessResultArray, $r);
+      array_push($guessList, $guessToEval);
+    }
+    
+    $gCount = count($guessResultArray);
+    
+    for($g = 0; $g < $gCount; $g++)
+    {
+      for($i = 0; $i < 5; $i++)
+      {
+        if($guessResultArray[$g][$i] == 2)
+        {
+          if($guessToArray[$i] != $answerToArray[$i])
+          {
+            $usedAllLetters = false;
+          }
+        }
+        else if($guessResultArray[$g][$i] == 1)
+        {
+          $searchForLetter = array_search($guessList[$g][$i], $guessToArray);
+    
+          if($searchForLetter === false)
+          {
+            $usedAllLetters = false;
+          }
+        }
+      }
+    }
+
+    if(!$usedAllLetters)
+    {
+      return json_encode("NoGood");
+    }
+    
+    return json_encode($guessResultArray, JSON_UNESCAPED_UNICODE);
+  }
+
+  public function PostGame()
+  {
+    $this->Boot((int)$this->session->get('dictionary'));
+    $data = json_decode($this->request->getVar('data'));
+
+    $gameState = strtoupper((string)$data->gameState);
+
+    if(isset($gameState))
+    {      
+      if($gameState === "D")
+      {
+        if(!$this->session->has('dailyWord')) return json_encode("NoWord");
+        else return json_encode($this->session->get('dailyWord'));
+      }
+      else if($gameState === "R") return json_encode($this->session->get('wordToGuess'));
+    }
   }
 }
