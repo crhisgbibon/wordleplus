@@ -1,27 +1,23 @@
-<div id="solveCenter">
-  <div id="solveCenterMessageBox">
-    <div id="solveCenterHeaderText">
-      Enter a five letter word to solve.
-    </div>
+<div id="SOLVE" style='min-height: calc(var(--vh) * 65); max-height: calc(var(--vh) * 65);' class='flex flex-col justify-center items-center overflow-y-auto'>
+  <div class="flex flex-row justify-center items-center w-full max-w-sm px-4 my-2" style='height: calc(var(--vh) * 7.5);'>
+    Enter a five letter word to solve.
   </div>
   
-  <div id="solveInputBox">
-    <div id="solveFlexBox">
-      <input disabled class="solveInput" id="s0" maxlength="1" type="text">
-      <input disabled class="solveInput" id="s1" maxlength="1" type="text">
-      <input disabled class="solveInput" id="s2" maxlength="1" type="text">
-      <input disabled class="solveInput" id="s3" maxlength="1" type="text">
-      <input disabled class="solveInput" id="s4" maxlength="1" type="text">
-    </div>
+  <div class="flex flex-row justify-center items-center w-full max-w-sm px-4 my-2" style='height: calc(var(--vh) * 7.5);'>
+    <button class="solveInput rounded-lg w-10 h-10 mx-2 uppercase" style='background-color: var(--backgroundLight); cursor: default;'></button>
+    <button class="solveInput rounded-lg w-10 h-10 mx-2 uppercase" style='background-color: var(--backgroundLight); cursor: default;'></button>
+    <button class="solveInput rounded-lg w-10 h-10 mx-2 uppercase" style='background-color: var(--backgroundLight); cursor: default;'></button>
+    <button class="solveInput rounded-lg w-10 h-10 mx-2 uppercase" style='background-color: var(--backgroundLight); cursor: default;'></button>
+    <button class="solveInput rounded-lg w-10 h-10 mx-2 uppercase" style='background-color: var(--backgroundLight); cursor: default;'></button>
   </div>
   
-  <div id="solveCenterOutputBox">
-    <div id="solveCenterOutput">
-      <p id="solveCenterOutputText"></p>
+  <div class="flex flex-col justify-center items-center w-full max-w-sm px-4 my-2" style='height: calc(var(--vh) * 15);'>
+    <div class="flex flex-row justify-center items-center w-full max-w-sm px-4 my-2" style='height: calc(var(--vh) * 7.5);'>
+      <p id='SOLVE_TEXT'></p>
     </div>
-    <div id="solveCenterOutputButtonHolder">
-      <button id="randomSolveButton">?</button>
-      <button id="goSolveItButton">></button>
+    <div class="flex flex-row justify-center items-center w-full max-w-sm px-4 my-2" style='height: calc(var(--vh) * 7.5);'>
+      <button id='SOLVE_RANDOM' class='active:scale-95 hover:scale-105 mx-4 rounded-lg w-10 h-10' style='background-color: var(--backgroundLight);'>?</button>
+      <button id='SOLVE_SOLVE' class='active:scale-95 hover:scale-105 mx-4 rounded-lg w-10 h-10' style='background-color: var(--backgroundLight);'>></button>
     </div>
   </div>
 </div>

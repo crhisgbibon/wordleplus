@@ -306,7 +306,7 @@ class WordleProcessModel
     {
       $score = $wordResult[$i][1];
       $percent = (100 / $highScore) * $score;
-      $percent = round($percent, 2);
+      $percent = round($percent, 1);
       $wordResult[$i][1] = $percent;
     }
     

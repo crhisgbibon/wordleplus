@@ -1,319 +1,152 @@
-"use strict";
+'use strict';
 
-const inputOutputButton = document.getElementById("inputOutputButton");
-inputOutputButton.onclick = function() { SwitchSwitch() };
-const ioImg = document.getElementById("ioImg");
-inputOutputButton.style.backgroundColor = "var(--backgroundLight)";
+// STARTUP LOGIC
 
-const solveButton = document.getElementById("solveButton");
-solveButton.onclick = function() { ToggleScreen(1) };
-const ioSolve = document.getElementById("ioSolve");
-
-const playButton = document.getElementById("playButton");
-playButton.onclick = function() { NewGameOrPlayScreen() };
-const ioPlay = document.getElementById("ioPlay");
-
-const sortButton = document.getElementById("sortButton");
-sortButton.onclick = function() { SwitchSort() };
-const ioSort = document.getElementById("ioSort");
-
-const resetButton = document.getElementById("resetButton");
-resetButton.onclick = function() { Reset() };
-const ioUndo = document.getElementById("ioUndo");
-
-const changeDictionaryButton = document.getElementById("changeDictionaryButton");
-changeDictionaryButton.onclick = function() { ToggleScreen(2) };
-const ioList = document.getElementById("ioList");
-
-const helpButton = document.getElementById("helpButton");
-helpButton.onclick = function() { ToggleScreen(3) };
-const ioInfo = document.getElementById("ioInfo");
-
-let toggleScreenNumber = 0;
-
-const otherControls = document.getElementById("otherControls");
-const playTextPanel = document.getElementById("playTextPanel");
-playTextPanel.style.display = "none";
-
-// solve input screen
-let solveString = "";
-
-const solveCenter = document.getElementById("solveCenter");
-
-const solveCenterMessageBox = document.getElementById("solveCenterMessageBox");
-
-const solveArray = document.getElementsByClassName("solveInput");
-const solveLength = solveArray.length;
-
-const solveCenterOutputBox = document.getElementById("solveCenterOutputBox");
-
-const solveCenterOutputText = document.getElementById("solveCenterOutputText");
-
-const goSolveItButton = document.getElementById("goSolveItButton");
-goSolveItButton.onclick = function() { ValidateSolve() };
-
-const randomSolveButton = document.getElementById("randomSolveButton");
-randomSolveButton.onclick = function() { RandomSolve() };
-
-// dictionary screen
-const dictionaryCenter = document.getElementById("dictionaryCenter");
-
-const d1 = document.getElementById("d1");
-d1.onclick = function() { ChangeDictionary(1) };
-
-const d2 = document.getElementById("d2");
-d2.onclick = function() { ChangeDictionary(2) };
-
-const d3 = document.getElementById("d3");
-d3.onclick = function() { ChangeDictionary(3) };
-
-const d4 = document.getElementById("d4");
-d4.onclick = function() { ChangeDictionary(4) };
-
-const d5 = document.getElementById("d5");
-d5.onclick = function() { ChangeDictionary(5) };
-
-const d6 = document.getElementById("d6");
-d6.onclick = function() { ChangeDictionary(6) };
-
-const d7 = document.getElementById("d7");
-d7.onclick = function() { ChangeDictionary(7) };
-
-const guessFromAnswerCheck = document.getElementById("guessFromAnswerCheck");
-// false means check against w7, rather than against answer list
-let guessFromAnswers = true;
-guessFromAnswerCheck.onclick = function() { ChangeGuessFrom() };
-
-/*
-// wordle lists
-const d8 = document.getElementById("d8");
-d8.setAttribute("onclick", "ChangeDictionary(8)");
-
-const d9 = document.getElementById("d9");
-d9.setAttribute("onclick", "ChangeDictionary(9)");
-
-const dArray = [d1, d2, d3, d4, d5, d6, d7, d8, d9];
-*/
-
-const dArray = [d1, d2, d3, d4, d5, d6, d7];
-const dLength = dArray.length;
-dArray[2].style.backgroundColor = "var(--green)";
-
-// info screen
-
-const infoPlay = document.getElementById("infoPlay");
-const infoSwitch = document.getElementById("infoSwitch");
-const infoSort = document.getElementById("infoSort");
-const infoSolve = document.getElementById("infoSolve");
-const infoList = document.getElementById("infoList");
-const infoTheme = document.getElementById("infoTheme");
-const infoInfo = document.getElementById("infoInfo");
-const infoReset = document.getElementById("infoReset");
-
-// play screen
-
-const playCenter = document.getElementById("playCenter");
-
-const playCenterRandomButton = document.getElementById("playCenterRandomButton");
-playCenterRandomButton.onclick = function() { PlayRandomNewGame() };
-
-const playCenterDailyButton = document.getElementById("playCenterDailyButton");
-playCenterDailyButton.onclick = function() { StartDaily() };
-
-const playPlay = document.getElementById("playPlay");
-const playGlobe = document.getElementById("playGlobe");
-const playSand = document.getElementById("playSand");
-const playChart1 = document.getElementById("playChart1");
-playChart1.onclick = function() { ShowChart(1) };
-const playChart2 = document.getElementById("playChart2");
-playChart2.onclick = function() { ShowChart(2) };
-const playLeaderboard = document.getElementById("playLeaderboard");
-
-const playCenterArcadeButton = document.getElementById("playCenterArcadeButton");
-playCenterArcadeButton.onclick = function() { PlayArcadeNewGame() };
-
-const playCenterLeaderboardButton = document.getElementById("playCenterLeaderboardButton");
-playCenterLeaderboardButton.onclick = function() { ShowLeaderboard(1) };
-
-// clue screen
-const clueCenter = document.getElementById("clueCenter");
-const clueCenterOutputText = document.getElementById("clueCenterOutputText");
-const getClueButton = document.getElementById("getClueButton");
-getClueButton.onclick = function() { RequestClue() };
-const closeClueButton = document.getElementById("closeClueButton");
-closeClueButton.onclick = function() { ShowClueScreen() };
-
-// stop user requesting clue when still processing last request
-let working = false;
-
-// clue array
-const clueInputArray = document.getElementsByClassName("clueInput");
-const clueLength = clueInputArray.length;
-
-let clueArray = [];
-let showClue = false;
-
-// name input screen
-let nameString = "";
-
-const nameCenter = document.getElementById("nameCenter");
-const nameArray = document.getElementsByClassName("nameInput");
-const nameLength = nameArray.length;
-
-const nameCenterOutputText = document.getElementById("nameCenterOutputText");
-
-let nameScreenBool = false;
-
-const enterNameButton = document.getElementById("enterNameButton");
-enterNameButton.onclick = function() { SubmitToLeaderboard() };
-
-const exitNameButton = document.getElementById("exitNameButton");
-exitNameButton.onclick = function() { CloseNameEnter() };
-
-// chart Screen
-const chartCenter = document.getElementById("chartCenter");
-const closeChartButton = document.getElementById("closeChartButton");
-closeChartButton.onclick = function() { ShowChart(3) };
-
-let chartType = document.getElementById("chartType");
-
-let chartPlayed = document.getElementById("chartPlayed");
-let chartPercent = document.getElementById("chartPercent");
-let chartCurrent = document.getElementById("chartCurrent");
-let chartMax = document.getElementById("chartMax");
-let chartOne = document.getElementById("chartOne");
-let chartTwo = document.getElementById("chartTwo");
-let chartThree = document.getElementById("chartThree");
-let chartFour = document.getElementById("chartFour");
-let chartFive = document.getElementById("chartFive");
-let chartSix = document.getElementById("chartSix");
-let chartFailed = document.getElementById("chartFailed");
-
-let cleanChartButton = document.getElementById("cleanChartButton");
-cleanChartButton.onclick = function() { ClearData() };
-
-const chartClose = document.getElementById("chartClose");
-const chartErase = document.getElementById("chartErase");
-
-// leaderboard screen
-
-const leaderboardCenter = document.getElementById("leaderboardCenter");
-const leaderBoardData = document.getElementById("leaderBoardData");
-
-const closeLeaderboardButton = document.getElementById("closeLeaderboardButton");
-closeLeaderboardButton.onclick = function() { ShowLeaderboard(2) };
-
-let refreshLeaderboardButton = document.getElementById("refreshLeaderboardButton");
-refreshLeaderboardButton.onclick = function() { FillLeaderboard() };
-
-const refreshLeaderboardIMG = document.getElementById("refreshLeaderboardIMG");
-const closeLeaderboardIMG = document.getElementById("closeLeaderboardIMG");
-
-// text inputs
-const wArray = document.getElementsByClassName("wordInput");
-const wLength = wArray.length;
-
-// toggle state buttons
-const sArray = document.getElementsByClassName("stateButton");
-const sLength = sArray.length;
-
-for(let i = 0; i < sLength; i++)
+function Main()
 {
-  sArray[i].onclick = function() { SwitchState() };
-}
+  // Assign CONTROLS buttons
+  for(let i = 0; i < bLen; i++)
+  {
+    b[i].onclick = null;
+    if(b[i] !== PLAY_BUTTON) b[i].onclick = function() { ToggleScreen(i); };
+    else
+    {
+      b[i].onclick = function()
+      {
+        if(playing === '')
+        {
+          ToggleScreen(i);
+        }
+        else
+        {
+          BUTTON_PANEL.style.display = '';
+          PLAY_PANEL.style.display = 'none';
+          playing = '';
+          for(let i = 0; i < kLength; i++) kArray[i].dataset.state = 'normal';
+          ToggleScreen(1);
+        }
+        ToggleScreen(i);
+      };
+    }
+  }
+  RESET_BUTTON.onclick = null;
+  RESET_BUTTON.onclick = function() { Reset(); };
 
-// keyboard
-const kArray = document.getElementsByClassName("keyboardButtons");
-const kLength = kArray.length;
+  // Assign PLAY buttons
+  PLAY_RANDOM.onclick = null;
+  PLAY_RANDOM.onclick = function() { PlayRandom(); };
+  PLAY_DAILY.onclick = null;
+  PLAY_DAILY.onclick = function() { PlayDaily(); };
 
-// filter words
-const fArray = document.getElementsByClassName("wordFilter");
-const fLength = fArray.length;
+  // Assign STATS buttons
+  STATS_RANDOM.onclick = null;
+  STATS_RANDOM.onclick = function() { ShowStats('R'); };
+  STATS_DAILY.onclick = null;
+  STATS_DAILY.onclick = function() { ShowStats('D'); };
 
-for(let i = 0; i < kLength; i++)
-{
-  kArray[i].onclick = function() { Toggle(i) };
-}
+  CLEAR_RANDOM.onclick = null;
+  CLEAR_RANDOM.onclick = function() { ClearStats('R'); };
+  CLEAR_DAILY.onclick = null;
+  CLEAR_DAILY.onclick = function() { ClearStats('D'); };
 
-// tabs
-const guessTableCenter = document.getElementById("guessTableCenter");
-const listTableCenter = document.getElementById("listTableCenter");
+  CLOSE_STATS.onclick = function() { ShowStats('C'); };
 
-const keyboardTableCenter = document.getElementById("keyboardTableCenter");
+  // Assign GUESS buttons
+  for(let i = 0; i < wLength; i++)
+  {
+    wArray[i].onclick = null;
+    wArray[i].onclick = function() { SwitchState(wArray[i]); };
+  }
 
-listTableCenter.style.display = "none";
-guessTableCenter.style.display = "";
+  // Assign DICTIONARY buttons
+  for(let i = 0; i < dLength; i++)
+  {
+    dArray[i].onclick = null;
+    dArray[i].onclick = function() { ChangeDictionary(i); };
+  }
 
-keyboardTableCenter.style.display = "";
+  // Assign SOLVE buttons
+  SOLVE_RANDOM.onclick = null;
+  SOLVE_RANDOM.onclick = function() { SolveRandom(); };
+  SOLVE_SOLVE.onclick = null;
+  SOLVE_SOLVE.onclick = function() { Solve(); };
 
-// table body
-const wordTableListBody = document.getElementById("wordTableListBody");
-
-// variables
-
-let wordStore = [];
-
-const qwerty = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P",
-  "A", "S", "D", "F", "G", "H", "J", "K", "L", "?",
-  "Z", "X", "C", "V", "B", "N", "M", "-", ">", "<"];
+  // Assign KEYBOARD buttons
+  for(let i = 0; i < kLength; i++)
+  {
+    kArray[i].onclick = null;
+    kArray[i].onclick = function() { Toggle(kArray[i].innerHTML); };
+  }
   
-const alphabet = ["Q","W","E","R","T","Y","U","I","O","P",
-  "A","S","D","F","G","H","J","K","L",
-  "Z","X","C","V","B","N","M"];
-  
-let currentTab = "input";
-
-let keyBoardSearch = false;
-
-const toggleLetters = [];
-for(var i = 0; i < 26; i++)
-{
-  toggleLetters.push(true);
+  // Reset all variables for blank slate
+  Reset();
 }
 
-let inputString = "";
-let searchString = "";
+function Reset()
+{
+  for(let i = 0; i < bLen; i++) b[i].dataset.state = "inactive";
+  for(let i = 0; i < wLength; i++)
+  {
+    wArray[i].innerHTML = '';
+    wArray[i].dataset.state = "excluded";
+  }
+  for(let i = 0; i < dLength; i++)
+  {
+    if(i === 2) dArray[i].dataset.state = 'active';
+    else dArray[i].dataset.state = 'inactive';
+  }
+  for(let i = 0; i < kLength; i++) kArray[i].dataset.state = 'normal';
 
-let dictionary = 3;
+  playing = '';
+  keyboardsearch = false;
+  guessLevel = 0;
 
-// true = input, false = output
-let currentPage = true;
+  solveString = '';
+  filterString = '';
+  inputString = '';
+  keyboardString = '';
 
-// true = sort by AZ, false = sort by score - first list loaded is by score
-let sortAZ = false;
+  CHART.style.display = 'none';
+  PLAY_PANEL.style.display = 'none';
+  LIST_BODY.innerHTML = '';
+  ToggleScreen(1);
+}
 
-let playing = false;
-let guessLevel = 0;
-let winCount = 0;
+document.addEventListener('DOMContentLoaded', Main);
+
+
+
+
+
+
+
+
+// LOCALSTORAGE LOGIC
+
+const STATS_RANDOM = document.getElementById('STATS_RANDOM');
+const STATS_DAILY = document.getElementById('STATS_DAILY');
+
+const CLEAR_RANDOM = document.getElementById('CLEAR_RANDOM');
+const CLEAR_DAILY = document.getElementById('CLEAR_DAILY');
+
+const CLOSE_STATS = document.getElementById('CLOSE_STATS');
+
+const statsArray = document.getElementsByClassName('statDiv');
+const statsLength = statsArray.length;
 
 // retrieve JSON from local storage of random results
 let savedResultsRandom = [];
 let savedCurrentStreakRandom = 0;
 let savedMaxStreakRandom = 0;
-if(localStorage.savedResultsRandom)
-{
-  savedResultsRandom = JSON.parse(localStorage.savedResultsRandom);
-}
-else
-{
-  savedResultsRandom = [];
-}
-if(localStorage.savedResultsRandom)
-{
-  savedCurrentStreakRandom = localStorage.savedCurrentStreakRandom;
-}
-else
-{
-  savedCurrentStreakRandom = 0;
-}
-if(localStorage.savedMaxStreakRandom)
-{
-  savedMaxStreakRandom = localStorage.savedMaxStreakRandom;
-}
-else
-{
-  savedMaxStreakRandom = 0;
-}
+
+if(localStorage.savedResultsRandom) savedResultsRandom = JSON.parse(localStorage.savedResultsRandom);
+else savedResultsRandom = [];
+
+if(localStorage.savedResultsRandom) savedCurrentStreakRandom = localStorage.savedCurrentStreakRandom;
+else savedCurrentStreakRandom = 0;
+
+if(localStorage.savedMaxStreakRandom) savedMaxStreakRandom = localStorage.savedMaxStreakRandom;
+else savedMaxStreakRandom = 0;
 
 // retrieve JSON from local storage of daily results
 let savedResultsDaily = [];
@@ -327,2284 +160,504 @@ let savedDailyLastDatePlayed = "";
 // boolean to determine when loading saves so not to save reload as new victory
 let loadingSaves = false;
 let savedDailyLastGuessSet = [];
-if(localStorage.savedResultsDaily)
-{
-  savedResultsDaily = JSON.parse(localStorage.savedResultsDaily);
-}
-else
-{
-  savedResultsDaily = [];
-}
-if(localStorage.savedCurrentStreakDaily)
-{
-  savedCurrentStreakDaily = localStorage.savedCurrentStreakDaily;
-}
-else
-{
-  savedCurrentStreakDaily = 0;
-}
-if(localStorage.savedMaxStreakDaily)
-{
-  savedMaxStreakDaily = localStorage.savedMaxStreakDaily;
-}
-else
-{
-  savedMaxStreakDaily = 0;
-}
+
+if(localStorage.savedResultsDaily) savedResultsDaily = JSON.parse(localStorage.savedResultsDaily);
+else savedResultsDaily = [];
+
+if(localStorage.savedCurrentStreakDaily) savedCurrentStreakDaily = localStorage.savedCurrentStreakDaily;
+else savedCurrentStreakDaily = 0;
+
+if(localStorage.savedMaxStreakDaily) savedMaxStreakDaily = localStorage.savedMaxStreakDaily;
+else savedMaxStreakDaily = 0;
+
 // saved data on current day's game
-if(localStorage.savedDailyLastDatePlayed)
+if(localStorage.savedDailyLastDatePlayed) savedDailyLastDatePlayed = localStorage.savedDailyLastDatePlayed;
+else savedDailyLastDatePlayed = "";
+
+if(localStorage.savedDailyLastGuessSet) savedDailyLastGuessSet = JSON.parse(localStorage.savedDailyLastGuessSet);
+else savedDailyLastGuessSet = [];
+
+function ShowStats(dataSet)
 {
-  savedDailyLastDatePlayed = localStorage.savedDailyLastDatePlayed;
-}
-else
-{
-  savedDailyLastDatePlayed = "";
-}
-if(localStorage.savedDailyLastGuessSet)
-{
-  savedDailyLastGuessSet = JSON.parse(localStorage.savedDailyLastGuessSet);
-}
-else
-{
-  savedDailyLastGuessSet = [];
-}
-
-// Random, Daily, Arcade
-let gameState = "Random";
-
-let arcadeCount = 0;
-let arcadeTimer = 0;
-let arcadeClues = 0;
-let arcadeInterval = undefined;
-let arcadeActive = false;
-let arcadeReset = false;
-let arcadePaused = true;
-
-FillChart();
-
-let chartShow = false;
-let leaderShow = false;
-
-// while true shows the think screen
-let thinking = false;
-
-chartCenter.style.display = "none";
-clueCenter.style.display = "none";
-dictionaryCenter.style.display = "none";
-leaderboardCenter.style.display = "none";
-listTableCenter.style.display = "none";
-nameCenter.style.display = "none";
-playCenter.style.display = "none";
-solveCenter.style.display = "none";
-
-// functions
-
-function Reset()
-{
-  if(playing) return;
-  
-  if(chartShow)
+  if(dataSet === 'R' || dataSet === 'D')
   {
-    ShowChart(3);
+    FillStats(dataSet);
+    CHART.style.display = "";
   }
-  
-  if(leaderShow)
+  else if(dataSet === 'C')
   {
-    ShowLeaderboard(2);
+    CHART.style.display = "none";
   }
-  
-  if(showClue)
-  {
-    ShowClueScreen();
-  }
-
-  // clear the input grid
-  for(let i = 0; i < wLength; i++)
-  {
-    wArray[i].value = "";
-    wArray[i].dataset.state = "excluded";
-    wArray[i].style.backgroundColor = "var(--backgroundLight)";
-    let el = document.getElementById("s" + wArray[i].id[1] + wArray[i].id[2]);
-    el.dataset.state = "excluded";
-  }
-  
-  // reset the keyboard
-  inputString = "";
-  searchString = "";
-  keyBoardSearch = false;
-  for(var i = 0; i < 26; i++)
-  {
-    toggleLetters[i] = true;
-  }
-  for(var i = 0; i < kLength; i++)
-  {
-    kArray[i].style.backgroundColor = "var(--backgroundLight)";
-  }
-  
-  // reset the filter grid and repopulate with the saved current dictionary sorted by score
-  for(var i = 0; i < fLength; i++)
-  {
-    fArray[i].value = "";
-  }
-  FillOutput(wordStore);
-  sortAZ = false;
-  Sort();
-  
-  // reset the solve center
-  solveString = "";
-  solveCenterOutputText.innerHTML = "";
-  for(let i = 0; i < solveLength; i++)
-  {
-    solveArray[i].value = "";
-  }
-  
-  // turn off overlay screens
-  ToggleScreen(0);
-  inputOutputButton.style.backgroundColor = "var(--backgroundLight)";
 }
 
-function SwitchSwitch()
+function FillStats(dataSet)
 {
-  if(playing) return;
+  let won = 0;
+  let perCent = 0;
   
-  if(chartShow)
-  {
-    ShowChart(3);
-  }
+  let count1 = 0;
+  let count2 = 0;
+  let count3 = 0;
+  let count4 = 0;
+  let count5 = 0;
+  let count6 = 0;
+  let countX = 0;
   
-  if(leaderShow)
-  {
-    ShowLeaderboard(2);
-  }
-  
-  if(showClue)
-  {
-    ShowClueScreen();
-  }
-  
-  if(inputOutputButton.style.backgroundColor === "var(--backgroundLight)")
-  {
-    currentPage = !currentPage;
-  }
-  Switch();
-}
+  let dataArray = [];
+  let dataLength = 0;
+  let currentStreak = 0;
+  let maxStreak = 0;
 
-function Switch()
-{ 
-  ToggleScreen(0);
-  
-  if(currentPage)
-  {    
-    let src1 = "images/keyboard.svg";
-    
-    ioImg.src = src1;
-    
-    guessTableCenter.style.display = "";
-    listTableCenter.style.display = "none";
-    
-    currentTab = "input";
-  }
-  else
+  if(dataSet === "R")
   {
-    let src1 = "images/list.svg";
-    
-    ioImg.src = src1;
-    
-    guessTableCenter.style.display = "none";
-    listTableCenter.style.display = "";
-    
-    currentTab = "output";
+    dataArray = savedResultsRandom;
+    dataLength = savedResultsRandom.length;
+    currentStreak = savedCurrentStreakRandom;
+    maxStreak = savedMaxStreakRandom;
+  }
+  else if(dataSet === "D")
+  {
+    dataArray = savedResultsDaily;
+    dataLength = savedResultsDaily.length;
+    currentStreak = savedCurrentStreakDaily;
+    maxStreak = savedMaxStreakDaily;
   }
 
-  inputOutputButton.style.backgroundColor = "var(--backgroundLight)";
-}
-
-function Solve(word)
-{
-  if(playing) return;
-  
-  thinking = true;
-
-  $.ajax(
+  if(dataLength > 0)
   {
-    method: "POST",
-    url: "/Solve",
-    data:
+    for(let i = 0; i < dataLength; i++)
     {
-      action:'Solve',
-      dictionary:dictionary,
-      solveAttempt:word
-    },
-    success:function(result)
-    {
-      if(result === "-1")
+      if(dataArray[i] <= 5)
       {
-        solveCenterOutputText.innerHTML = "This word is not in the current dictionary.";
-        AnimatePop(solveCenterOutputText);
+        won++;
+        if(dataArray[i] === 0) count1++;
+        if(dataArray[i] === 1) count2++;
+        if(dataArray[i] === 2) count3++;
+        if(dataArray[i] === 3) count4++;
+        if(dataArray[i] === 4) count5++;
+        if(dataArray[i] === 5) count6++;
       }
       else
       {
-        let tempArray = JSON.parse(result);
-        SolveResponse(tempArray[2], tempArray[0]);
-        FillOutput(tempArray[1]);
-        
-        if(toggleScreenNumber == 1)
-        {
-          ToggleScreen(0);
-        }
-        solveCenterOutputText.innerHTML = "";
-        currentPage = true;
-        Switch();
-      }
-      thinking = false;
-    },
-    error:function(result)
-    {
-      thinking = false;
-    }
-  });
-}
-
-async function SolveResponse(outputList, guessList)
-{
-  let guessArr = [];
-  let guessCount = guessList.length;
-  
-  for(let i = 0; i < guessCount; i++)
-  {
-    let iLength = guessList[i].length;
-    
-    if(iLength > 0)
-    {
-      for(var g = 0; g < iLength; g++)
-      {
-        guessArr.push(guessList[i][g]);
+        countX++;
       }
     }
+    perCent = (100 / dataLength) * won;
+    perCent = Math.round((perCent + Number.EPSILON) * 100) / 100;
   }
-  
-  let newInput = guessArr.toString();
-  let trimResult = newInput.replace(/\s*,\s*|\s+,/g, '');
-  inputString = trimResult;
-  
-  let colorArr = [];
-  for(let i = 0; i < outputList.length; i++)
+
+  const results = [
+    dataLength,
+    perCent,
+    currentStreak,
+    maxStreak,
+    count1,
+    count2,
+    count3,
+    count4,
+    count5,
+    count6,
+    countX
+  ];
+
+  if(results.length !== statsLength) return;
+
+  for(let i = 0; i < statsLength; i++)
   {
-    for(let n = 0; n < outputList[i].length; n++)
-    {
-      colorArr.push(outputList[i][n]);
-    }
-  }
-  
-  let cLength = colorArr.length;
-  
-  // clear array
-  for(let i = 0; i < wLength; i++)
-  {
-    let el = document.getElementById("s" + wArray[i].id[1] + wArray[i].id[2]);
-    wArray[i].value = "";
-    wArray[i].style.backgroundColor = "var(--backgroundLight)";
-    wArray[i].dataset.state = "excluded";
-    el.dataset.state = "excluded";
-    wArray[i].style.backgroundColor = "var(--backgroundLight)";
-  }
-  
-  // add format to letters
-  for(let i = 0; i < cLength; i++)
-  {
-    let el = document.getElementById("s" + wArray[i].id[1] + wArray[i].id[2]);
-    
-    await Sleep(100);
-    
-    wArray[i].value = guessArr[i];
-    AnimateOnColour(wArray[i]);
-    
-    if(colorArr[i] == -1)
-    {
-      continue;
-    }
-    else if(colorArr[i] == 1)
-    {
-      wArray[i].dataset.state = "wrongPosition";
-      el.dataset.state = "wrongPosition";
-      wArray[i].style.backgroundColor = "var(--yellow)";
-    }
-    else if(colorArr[i] == 2)
-    {
-      wArray[i].dataset.state = "rightPosition";
-      el.dataset.state = "rightPosition";
-      wArray[i].style.backgroundColor = "var(--green)";
-    }
+    statsArray[i].innerHTML = results[i];
   }
 }
 
-function SwitchState()
+function ClearStats(dataSet)
 {
-  if(playing) return;
+  let gameMode = (dataSet === 'R') ? 'Random' : 'Daily';
+  let check = confirm("This will clear saved data for " + gameMode + " game mode. Proceed?");
+  if(!check) return;
   
-	let el = document.getElementById(event.target.id);
-	let el2 = document.getElementById("w" + event.target.id[1] + event.target.id[2]);
-	
-	if(el.dataset.state === undefined || el.dataset.state === "" ||el.dataset.state === "excluded")
-	{
-		el.dataset.state = "wrongPosition";
-		el2.dataset.state = "wrongPosition";
-		el2.style.backgroundColor = "var(--yellow)";
-	}
-	else if(el.dataset.state === "wrongPosition")
-	{
-		el.dataset.state = "rightPosition";
-		el2.dataset.state = "rightPosition";
-		el2.style.backgroundColor = "var(--green)";
-	}
-	else if(el.dataset.state === "rightPosition")
-	{
-		el.dataset.state = "excluded";
-		el2.dataset.state = "excluded";
-		el2.style.backgroundColor = "var(--backgroundLight)";
-	}
-}
-
-function SwitchSort()
-{
-  if(playing) return;
-  
-  sortAZ = !sortAZ;
-  Sort();
-}
-
-function Sort()
-{
-  if(playing) return;
-  
-  let allDiv = document.getElementsByClassName('wordListClass');
-  if(allDiv.length == 0) return;
-  allDiv = Array.prototype.slice.call(allDiv, 0);
-  
-  let sortBy = 0;
-  
-  if(sortAZ)
+  if(dataSet === "R")
   {
-    let src1 = "images/sortAZ.svg";
-  
-    ioSort.src = src1;
+    savedResultsRandom = [];
+    savedCurrentStreakRandom = 0;
+    savedMaxStreakRandom = 0;
     
-    sortBy = 0;
+    localStorage.setItem("savedResultsRandom", savedResultsRandom);
+    localStorage.setItem("savedCurrentStreakRandom", savedCurrentStreakRandom);
+    localStorage.setItem("savedMaxStreakRandom", savedMaxStreakRandom);
   }
-  else
+  else if(dataSet === "D")
   {
-    let src1 = "images/crown.svg";
-  
-    ioSort.src = src1;
-
-    sortBy = 1;
+    savedResultsDaily = [];
+    savedCurrentStreakDaily = 0;
+    savedMaxStreakDaily = 0;
+    savedDailyLastDatePlayed = 0;
+    savedDailyLastGuessSet = [];
+    
+    localStorage.setItem("savedResultsDaily", savedResultsDaily);
+    localStorage.setItem("savedCurrentStreakDaily", savedCurrentStreakDaily);
+    localStorage.setItem("savedMaxStreakDaily", savedMaxStreakDaily);
+    localStorage.setItem("savedDailyLastDatePlayed", savedDailyLastDatePlayed);
+    localStorage.setItem("savedDailyLastGuessSet", savedDailyLastGuessSet);
   }
 
-  allDiv.sort(function(a, b)
-  {
-    let f1 = undefined;
-    let f2 = undefined;
-
-    if(sortBy == 0) // alphabetical
-    {
-      f1 = a.children[1].innerHTML.toUpperCase() + a.children[2].innerHTML.toUpperCase() + a.children[3].innerHTML.toUpperCase() + a.children[4].innerHTML.toUpperCase() + a.children[5].innerHTML.toUpperCase();
-      f2 = b.children[1].innerHTML.toUpperCase() + b.children[2].innerHTML.toUpperCase() + b.children[3].innerHTML.toUpperCase() + b.children[4].innerHTML.toUpperCase() + b.children[5].innerHTML.toUpperCase();
-    }
-    if(sortBy == 1) // word score
-    {
-      f2 = parseInt(a.children[6].innerHTML);
-      f1 = parseInt(b.children[6].innerHTML);	
-    }
-
-    if(f1 < f2) return 1, -1;
-      else return -1, 1;
-  });
-
-  wordTableListBody.innerHTML = "";
-	
-	document.getElementById("totalWordCount").value = allDiv.length;
-
-  for(let i = 0; i < allDiv.length; i++)
-  {
-		allDiv[i].children[0].innerHTML = i + 1;
-    wordTableListBody.appendChild(allDiv[i]);
-  }
+  FillStats();
 }
 
-function ChangeDictionary(dictionary1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// CONTROLS LOGIC
+
+const PLAY_BUTTON = document.getElementById('PLAY_BUTTON');
+const GUESS_BUTTON = document.getElementById('GUESS_BUTTON');
+const LIST_BUTTON = document.getElementById('LIST_BUTTON');
+const SOLVE_BUTTON = document.getElementById('SOLVE_BUTTON');
+const DICTIONARY_BUTTON = document.getElementById('DICTIONARY_BUTTON');
+const INFO_BUTTON = document.getElementById('INFO_BUTTON');
+const RESET_BUTTON = document.getElementById('RESET_BUTTON');
+
+const b = [
+  PLAY_BUTTON,
+  GUESS_BUTTON,
+  LIST_BUTTON,
+  SOLVE_BUTTON,
+  DICTIONARY_BUTTON,
+  INFO_BUTTON
+];
+const bLen = b.length;
+
+// Main Panels
+const PLAY = document.getElementById('PLAY');
+const GUESS = document.getElementById('GUESS');
+const LIST = document.getElementById('LIST');
+const SOLVE = document.getElementById('SOLVE');
+const DICTIONARY = document.getElementById('DICTIONARY');
+const INFO = document.getElementById('INFO');
+
+// Sub Panels
+const CHART = document.getElementById('CHART');
+
+const v = [
+  PLAY,
+  GUESS,
+  LIST,
+  SOLVE,
+  DICTIONARY,
+  INFO
+];
+
+function ToggleScreen(index)
 {
-  thinking = true;
-  
-  wordTableListBody.innerHTML = "";
-  
-  for(let i = 0; i < dLength; i++)
+  for(let i = 0; i < bLen; i++)
   {
-    if(i == (dictionary1 - 1))
+    if(index === i)
     {
-      dArray[i].style.backgroundColor = "var(--green)";
+      b[i].dataset.state = 'active';
+      v[i].style.display = '';
     }
     else
     {
-       dArray[i].style.backgroundColor = "var(--backgroundLight)";
+      b[i].dataset.state = 'inactive';
+      v[i].style.display = 'none';
     }
   }
-
-  $.ajax(
-  {
-    method: "POST",
-    url: "/ChangeDictionary",
-    data:
-    {
-      action:'ChangeDictionary',
-      request:dictionary1
-    },
-    success:function(result)
-    {
-      let tempArray = JSON.parse(result);
-      wordStore.length = 0;
-      wordStore = tempArray;
-      dictionary = dictionary1;
-      FillOutput(tempArray);
-      
-      if(toggleScreenNumber != 0)
-      {
-        ToggleScreen(0);
-      }
-      if(searchString.length != "")
-      {
-        FilterWords();
-      }
-      thinking = false;
-    },
-    error:function(result)
-    {
-      thinking = false;
-    }
-  });
 }
 
-function ChangeGuessFrom()
-{
-  guessFromAnswers = !guessFromAnswers;
-}
 
-function FillOutput(wordArray)
+
+
+
+
+// PLAY LOGIC
+
+const PLAY_RANDOM = document.getElementById('PLAY_RANDOM');
+const PLAY_DAILY = document.getElementById('PLAY_DAILY');
+const PLAY_ARCADE = document.getElementById('PLAY_ARCADE');
+
+const BUTTON_PANEL = document.getElementById('BUTTON_PANEL');
+const PLAY_PANEL = document.getElementById('PLAY_PANEL');
+
+function PlayRandom()
 {
-  wordTableListBody.innerHTML = "";
+  Reset();
+  ToggleScreen(1);
   
-  //document.getElementById("dictionaryName").value = dictionary;
-  document.getElementById("totalWordCount").value = wordArray.length;
-	
-	for(let i = 0; i < wordArray.length; i++)
-	{
-		let row = wordTableListBody.insertRow(-1);
-		row.className = "wordListClass";
-		row.id = "r" + i;
+  BUTTON_PANEL.style.display = "none";
+  PLAY_PANEL.style.display = "";
+  
+  PLAY_PANEL.innerHTML = "";
+  
+  playing = 'R';
+  guessLevel = 0;
 
-		// Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-		
-		// rank
-		let cell0 = row.insertCell(0);
-		cell0.className = "listEnd";
-		// letter 1
-		let cell1 = row.insertCell(1);
-		cell1.className = "listCol";
-		// letter 2
-		let cell2 = row.insertCell(2);
-		cell2.className = "listCol";
-		// letter 3
-		let cell3 = row.insertCell(3);
-		cell3.className = "listCol";
-		// letter 4
-		let cell4 = row.insertCell(4);
-		cell4.className = "listCol";
-		// letter 5
-		let cell5 = row.insertCell(5);
-		cell5.className = "listCol";
-		// score
-		let cell6 = row.insertCell(6);
-		cell6.className = "listEnd";
+  let data = JSON.stringify({  });
+  Post('NewGame', data)
+  .then(result => {
+    // console.log(result);
+  })
+  .catch((error) => console.error(error));
+}
 
-		// Add some text to the new cells:
-    cell0.innerHTML = (i + 1);
+function PlayDaily()
+{
+  Reset();
+  ToggleScreen(1);
+  
+  BUTTON_PANEL.style.display = "none";
+  PLAY_PANEL.style.display = "";
+  
+  PLAY_PANEL.innerHTML = "";
+  
+  playing = 'D';
+
+  if(localStorage.savedDailyLastDatePlayed)
+  {
+    const date = new Date();
     
-		cell1.innerHTML = wordArray[i][0][0];
-		cell2.innerHTML = wordArray[i][0][1];
-		cell3.innerHTML = wordArray[i][0][2];
-		cell4.innerHTML = wordArray[i][0][3];
-		cell5.innerHTML = wordArray[i][0][4];
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
     
-    if(wordArray[i][1] != null)
+    const todayToCheck = year + "-" + (month + 1) + "-" + day;
+    
+    if(localStorage.savedDailyLastDatePlayed === todayToCheck)
     {
-      cell6.innerHTML = wordArray[i][1];
-    }
-	}
-  
-  // output from php is always ordered by rank
-  sortAZ = false;
-  
-  let src1 = "images/crown.svg";
-  
-  ioSort.src = src1;
-}
+      // check if there are any guesses already made today
+      if(localStorage.savedDailyLastGuessSet)
+      {
+        let guessesMade = JSON.parse(localStorage.savedDailyLastGuessSet);
+        // set to true, if the player already solved then won't save new win
+        loadingSaves = true;
 
-function Toggle(index)
-{
-  let key = qwerty[index];
-  if(key === "<" && gameState == "Arcade" && nameScreenBool)
-  {
-    RemoveName();
-    return;
-  }
-  if(key != "?" && key != "-" && key != "<" && key != ">")
-  {
-    if(gameState == "Arcade" && nameScreenBool)
-    {
-      FillArcadeButtons(true);
-      AddName(key);
-      return;
-    }
-  }
-  if(key === ">" && gameState == "Arcade" && nameScreenBool)
-  {
-    return;
-  }
-  if(playing)
-  {
-    if(winCount == 5) return;
-    if(key != "?" && key != "-" && key != "<" && key != ">")
-    {
-      if(inputString.length < (guessLevel * 5)) AddLetter(key);
-      if(gameState != "Arcade")
-      {
-        if(playTextPanel.innerHTML != null) playTextPanel.innerHTML = "";
+        let merged = '';
+        for(let i = 0; i < guessesMade.length; i++) merged += guessesMade[i];
+        let chars = merged.split("");
+        for(let i = 0; i < chars.length; i++)
+        {
+          let toUpper = chars[i].toUpperCase();
+          wArray[i].innerHTML = toUpper;
+          inputString += toUpper;
+        }
+        guessLevel = guessesMade.length - 1;
       }
-      else
-      {playTextPanel
-        FillArcadeButtons(true);
-      }
-    }
-    else if(key === "<")
-    {
-      if(inputString.length > ((guessLevel * 5) - 5)) RemoveLetter();
-      if(gameState != "Arcade")
-      {
-        if(playTextPanel.innerHTML != null) playTextPanel.innerHTML = "";
-      }
-      else
-      {
-        FillArcadeButtons(true);
-      }
-    }
-    else if(key === ">")
-    {
       SubmitGuess();
-      if(gameState != "Arcade")
-      {
-        if(playTextPanel.innerHTML != null) playTextPanel.innerHTML = "";
-      }
-      else
-      {
-        FillArcadeButtons(true);
-      }
-    }
-    return;
-  }
-  if(key != "?" && key != "-" && key != "<" && key != ">")
-  {
-    if(toggleScreenNumber == 1)
-    {
-      AddSolve(key);
-      return;
-    }
-    if(currentTab === "input")
-    {
-      if(keyBoardSearch)
-      {
-        let storeId = event.target.id;
-        if(storeId[0] === "b")
-        {
-          let num = parseInt(storeId.substr(1));
-          toggleLetters[num] = !toggleLetters[num];
-          if(toggleLetters[num])
-          {
-            document.getElementById(storeId).style.backgroundColor = "var(--green)";
-          }
-          else
-          {
-            document.getElementById(storeId).style.backgroundColor = "var(--backgroundLight)";
-          }
-        }
-      }
-      else
-      {
-        AddLetter(key);
-      }
-    }
-    else if(currentTab === "output")
-    {
-      if(keyBoardSearch)
-      {
-        let storeId = event.target.id;
-        if(storeId[0] === "b")
-        {
-          let num = parseInt(storeId.substr(1));
-          toggleLetters[num] = !toggleLetters[num];
-          if(toggleLetters[num])
-          {
-            document.getElementById(storeId).style.backgroundColor = "var(--green)";
-          }
-          else
-          {
-            document.getElementById(storeId).style.backgroundColor = "var(--backgroundLight)";
-          }
-        }
-      }
-      else
-      {
-        AddFilter(key)
-      }
     }
   }
-  else if(key === "<")
-  {
-    if(toggleScreenNumber == 1)
-    {
-      RemoveSolve();
-      return;
-    }
-    if(currentTab === "input")
-    {
-      RemoveLetter();
-    }
-    else if(currentTab === "output")
-    {
-      RemoveFilter();
-    }
-  }
-  else if(key === "?")
-  {
-    if(toggleScreenNumber != 0)
-    {
-      return;
-    }
-    keyBoardSearch = !keyBoardSearch;
-    if(keyBoardSearch)
-    {
-      event.target.style.backgroundColor = "var(--green)";
-      
-      let tLen = toggleLetters.length;
-      for(let i = 0; i < tLen; i++)
-      {
-        if(toggleLetters[i] === true)
-        {
-          document.getElementById("b" + i).style.backgroundColor = "var(--green)";
-        }
-        else
-        {
-          document.getElementById("b" + i).style.backgroundColor = "var(--backgroundLight)";
-        }
-      }
-    }
-    else
-    {
-      event.target.style.backgroundColor = "var(--backgroundLight)";
-      
-      let tLen = toggleLetters.length;
-      for(let i = 0; i < tLen; i++)
-      {
-        document.getElementById("b" + i).style.backgroundColor = "var(--backgroundLight)";
-      }
-    }
-  }
-  else if(key === "-")
-  {
-    if(currentTab === "output") AddFilter(key);
-  }
-  else if(key === ">")
-  {
-    if(currentTab === "input")
-    {
-      if(!playing)
-      {
-        if(keyBoardSearch)
-        {
-          FilterByKeys();
-        }
-        else
-        {
-          FilterByInput();
-        }
-      }
-    }
-    else if(currentTab === "output")
-    {
-      if(keyBoardSearch)
-      {
-        FilterByKeys();
-      }
-    }
-  }
+
+  let data = JSON.stringify({  });
+  Post('StartDaily', data)
+  .then(result => {
+    // console.log(result);
+  })
+  .catch((error) => console.error(error));
+}
+
+
+
+
+
+
+
+
+// GUESS LOGIC
+
+const wArray = document.getElementsByClassName('wordInput');
+const wLength = wArray.length;
+
+function SwitchState(button)
+{
+  if(playing !== '') return;
+
+  if(button.dataset.state === undefined || 
+    button.dataset.state === "" || 
+    button.dataset.state === "excluded") button.dataset.state = "wrongPosition";
+  else if(button.dataset.state === "wrongPosition") button.dataset.state = "rightPosition";
+  else if(button.dataset.state === "rightPosition") button.dataset.state = "excluded";
 }
 
 function FilterByInput()
 {
-  if(playing) return;
-  
-  thinking = true;
-  
-	let guessedWords = [];
-	
-  // identify the guessed words
-	for(let i = 0; i < wLength; i+= 5)
-	{
-		let one = wArray[i].value;
-		let two = wArray[i + 1].value;
-		let three = wArray[i + 2].value;
-		let four = wArray[i + 3].value;
-		let five = wArray[i + 4].value;
-		
-		let word = one + two + three + four + five;
-		if(word.length === 5) guessedWords.push(word);
-	}
-	
+  if(playing !== '') return;
+
+  class wrongPosLetter
+  {
+    wrongPosLetter(letter, positions)
+    {
+      this.letter = letter;
+      this.positions = positions;
+    }
+  }
+
+  let guessedWords = [];
   let knownLetters = ["-1", "-1", "-1", "-1", "-1"];
-	let excludedLetters = [];
-	let knownLettersByPosition = [];
-	
-	class wrongPosLetter{
-		wrongPosLetter(letter, count, positions)
-		{
-			this.letter = letter;
-			this.positions = positions;
-		}
-	}
-	
-  // identify known letters + position first
-	for(let i = 0; i < wLength; i++)
+  let excludedLetters = [];
+  let knownLettersByPosition = [];
+
+  // identify the guessed words
+  for(let i = 0; i < wLength; i+= 5)
   {
-    if(wArray[i].value === "" || wArray[i].value === "-") continue;
-    
-    let dataState = wArray[i].dataset.state;
-    
+    let one = wArray[i].innerHTML;
+    let two = wArray[i + 1].innerHTML;
+    let three = wArray[i + 2].innerHTML;
+    let four = wArray[i + 3].innerHTML;
+    let five = wArray[i + 4].innerHTML;
+
+    let word = one + two + three + four + five;
+    if(word.length === 5) guessedWords.push(word);
+  }
+
+  for(let i = 0; i < wLength; i++)
+  {
+    if(wArray[i].innerHTML === "" || wArray[i].innerHTML === "-") continue;
+
+    let state = wArray[i].dataset.state;
+
     // if known position store directly
-    if(dataState === "rightPosition")
+    if(state === "rightPosition")
     {
-      let letterPos = wArray[i].id[2];
-      knownLetters[letterPos] = wArray[i].value.toUpperCase();
-      continue;
+      let letterPos = wArray[i].id[1];
+      knownLetters[letterPos] = wArray[i].innerHTML.toUpperCase();
     }
-  }
-  
-  // then log excluded letters
-	for(let i = 0; i < wLength; i++)
-  {
-    if(wArray[i].value === "" || wArray[i].value === "-") continue;
-    
-    let dataState = wArray[i].dataset.state;
-    
+
     // if excluded letters then log if not already logged
-    if(dataState === "excluded" || dataState === "" || dataState === undefined)
+    if(state === "excluded" || state === "" || state === undefined)
     {
-      let check = true;
-      for(let e = 0; e < excludedLetters.length; e++)
-      {
-        if(wArray[i].value.toUpperCase() === excludedLetters[e].toUpperCase())
-        {
-          check = false;
-        }
-      }
-      if(check)
-      {
-        excludedLetters.push(wArray[i].value.toUpperCase());
-      }
+      if(!excludedLetters.includes(wArray[i].innerHTML.toUpperCase())) excludedLetters.push(wArray[i].innerHTML.toUpperCase());
     }
-  }
-  
-  // then log wrong position letters
-	for(let i = 0; i < wLength; i++)
-  {
-    if(wArray[i].value === "" || wArray[i].value === "-") continue;
-    
-    let dataState = wArray[i].dataset.state;
-    
-    // if excluded letters then log if not already logged
-    if(dataState === "wrongPosition")
+
+    if(state === "wrongPosition")
     {
-      let check = true;
-      
-      for(let k = 0; k < knownLettersByPosition.length; k++)
-      {
-        if(wArray[i].value.toUpperCase() == knownLettersByPosition[k].letter.toUpperCase())
-        {
-          knownLettersByPosition[k].positions.push(wArray[i].id[2]);
-          check = false;
-        }
-      }
-      
-      if(check)
+      const result = knownLettersByPosition.filter(obj => obj.letter === wArray[i].innerHTML.toUpperCase());
+
+      if(result.length > 0) result[0].positions.push(wArray[i].id[1]);
+      else
       {
         let newWord = new wrongPosLetter();
-        newWord.letter = wArray[i].value.toUpperCase();
-        newWord.positions = [];
-        newWord.positions.push(wArray[i].id[2]);
+        newWord.letter = wArray[i].innerHTML.toUpperCase();
+        newWord.positions = [ wArray[i].id[1] ];
         knownLettersByPosition.push(newWord);
       }
     }
   }
-  
+
   // remove any wrong position letters from excluded letters
   if(knownLettersByPosition.length > 0 && excludedLetters.length > 0)
   {
     for(let i = 0; i < knownLettersByPosition.length; i++)
     {
-      for(let e = 0; e < excludedLetters.length; e++)
-      {
-        if(knownLettersByPosition[i].letter == excludedLetters[e])
-        {
-          excludedLetters.splice(e,1);
-        }
-      }
+      if(excludedLetters.includes(knownLettersByPosition[i].letter)) excludedLetters.splice(excludedLetters.indexOf(knownLettersByPosition[i].letter), 1);
     }
   }
 
-  $.ajax(
-  {
-    method: "POST",
-    url: "/FilterByInput",
-    data:
-    {
-      action:'FilterByInput',
-      dictionary:dictionary,
-      guessedWords:guessedWords,
-      excludedLetters:excludedLetters,
-      knownLetters:knownLetters,
-      knownLettersByPosition:knownLettersByPosition
-    },
-    success:function(result)
-    {
-      console.log(result);
-      let tempArray = JSON.parse(result);
-      FillOutput(tempArray)
-      thinking = false;
-    },
-    error:function(result)
-    {
-      console.log(result);
-      thinking = false;
-    }
+  let data = JSON.stringify({
+    'guessedWords' : guessedWords,
+    'excludedLetters' : excludedLetters,
+    'knownLetters' : knownLetters,
+    'knownLettersByPosition' : knownLettersByPosition,
   });
-
-	currentPage = false;
-	Switch();
+  Post('FilterByInput', data)
+  .then(result => {
+    FillOutput(JSON.parse(result));
+    ToggleScreen(2);
+  })
+  .catch((error) => console.error(error));
 }
 
 function FilterByKeys()
 {
-  thinking = true;
-  
-	let excludedLetters = [];
-	
-	for(let i = 0; i < toggleLetters.length; i++)
-	{
-		if(toggleLetters[i] === false)
-		{
-			excludedLetters.push(alphabet[i]);
-		}
-	}
-
-  $.ajax(
-  {
-    method: "POST",
-    url: "/FilterByKeys",
-    data:
-    {
-      action:'FilterByKeys',
-      dictionary:dictionary,
-      excludedLetters:excludedLetters
-    },
-    success:function(result)
-    {
-      let tempArray = JSON.parse(result);
-      if(tempArray.length > 0)
-      {
-        FillOutput(tempArray); 
-      }
-      else
-      {
-        wordTableListBody.innerHTML = "";
-      }
-      thinking = false;
-    },
-    error:function(result)
-    {
-      thinking = false;
-    }
+  const diff = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(c => !keyboardString.includes(c)).join('');
+  let data = JSON.stringify({
+    'excludedLetters' : diff
   });
-	
-  currentPage = false;
-	Switch();
-}
-
-function FilterWords()
-{	
-	let filterLetters = ["-1", "-1", "-1", "-1", "-1"];
-	
-	for(let i = 0; i < fLength; i++)
-	{
-		if(fArray[i].value != "" && fArray[i].value != "-")
-      filterLetters[i] = fArray[i].value.toUpperCase();
-	}
-	
-	let allDiv = document.getElementsByClassName('wordListClass');
-  allDiv = Array.prototype.slice.call(allDiv, 0);
-	
-	for(let i = 0; i < allDiv.length; i++)
-	{
-		let check = false;
-		for(let a = 0; a < 5; a++)
-		{
-			if(filterLetters[a] != "-1")
-			{
-        let filterL = filterLetters[a].replace(/\s/g, "");
-        let divL = allDiv[i].children[a + 1].innerHTML.replace(/\s/g, "");
-				if(filterL != divL)
-				{
-					check = true;
-				}
-			}
-		}
-		if(check)
-		{
-			allDiv[i].style.display = "none";
-		}
-		else
-		{
-			allDiv[i].style.display = "";
-		}
-	}
-}
-
-document.onkeyup = function()
-{
-  if(event.key == "a" || event.key == "A" ||
-    event.key == "b" || event.key == "B" ||
-    event.key == "c" || event.key == "C" ||
-    event.key == "d" || event.key == "D" ||
-    event.key == "e" || event.key == "E" ||
-    event.key == "f" || event.key == "F" ||
-    event.key == "g" || event.key == "G" ||
-    event.key == "h" || event.key == "H" ||
-    event.key == "i" || event.key == "I" ||
-    event.key == "j" || event.key == "J" ||
-    event.key == "k" || event.key == "K" ||
-    event.key == "l" || event.key == "L" ||
-    event.key == "m" || event.key == "M" ||
-    event.key == "n" || event.key == "N" ||
-    event.key == "o" || event.key == "O" ||
-    event.key == "p" || event.key == "P" ||
-    event.key == "q" || event.key == "Q" ||
-    event.key == "r" || event.key == "R" ||
-    event.key == "s" || event.key == "S" ||
-    event.key == "t" || event.key == "T" ||
-    event.key == "u" || event.key == "U" ||
-    event.key == "v" || event.key == "V" ||
-    event.key == "w" || event.key == "W" ||
-    event.key == "x" || event.key == "X" ||
-    event.key == "y" || event.key == "Y" ||
-    event.key == "z" || event.key == "Z")
-  {
-    if(gameState == "Arcade" && nameScreenBool)
-    {
-      FillArcadeButtons(true);
-      AddName(event.key);
-      return;
-    }
-    if(playing)
-    {
-      if(winCount == 5) return;
-      if(inputString.length < (guessLevel * 5)) AddLetter(event.key);
-      if(gameState != "Arcade")
-      {
-        if(playTextPanel.innerHTML != null) playTextPanel.innerHTML = "";
-      }
-      else
-      {
-        FillArcadeButtons(true);
-      }
-      return;
-    }
-    if(toggleScreenNumber == 1)
-    {
-      AddSolve(event.key);
-      return;
-    }
-    if(currentTab === "input")
-    {
-      if(keyBoardSearch)
-      {
-        
-      }
-      else
-      {
-        AddLetter(event.key);
-      }
-    }
-    else if(currentTab === "output")
-    {
-      AddFilter(event.key)
-    }
-  }
-  
-  if(event.key === "Backspace" || event.key === "Delete")
-  {
-    if(gameState == "Arcade" && nameScreenBool)
-    {
-      RemoveName();
-      return;
-    }
-    if(playing)
-    {
-      if(winCount == 5) return;
-      if(inputString.length > ((guessLevel * 5) - 5)) RemoveLetter();
-      if(gameState != "Arcade")
-      {
-        if(playTextPanel.innerHTML != null) playTextPanel.innerHTML = "";
-      }
-      else
-      {
-        FillArcadeButtons(true);
-      }
-      return;
-    }
-    if(toggleScreenNumber == 1)
-    {
-      RemoveSolve();
-      return;
-    }
-    if(currentTab === "input")
-    {
-      if(playing)
-      {
-        RemoveLetter();
-      }
-      else
-      {
-        if(keyBoardSearch)
-        {
-          
-        }
-        else
-        {
-          RemoveLetter();
-        }
-      }
-    }
-    else if(currentTab === "output")
-    {
-      RemoveFilter();
-    }
-  }
-}
-
-// INPUT TEXT
-
-function AddLetter(key)
-{
-  if(inputString.length >= wLength) return;
-  inputString += key;
-  FillInput();
-}
-
-function RemoveLetter()
-{
-  if(inputString.length === 0) return;
-  inputString = inputString.substring(0, (inputString.length - 1));
-  FillInput();
-}
-
-function FillInput()
-{
-  for(let i = 0; i < wLength; i++)
-  {
-    if(i < inputString.length)
-    {
-      if(wArray[i].value != inputString[i])
-      {
-        wArray[i].value = inputString[i];
-        AnimateOnInput(wArray[i]);
-      }
-    }
-    else 
-    {
-      if(wArray[i].value != "")
-      {
-        AnimateOnInput(wArray[i]);
-      }
-      wArray[i].value = "";
-    }
-  }
-  
-  if(playing && inputString.length > ((guessLevel * 5) - 5))
-  {
-    if(inputString.length % 5 == 0)
-    {
-      document.getElementById("c28").style.backgroundColor = "var(--green)";
-    }
-    else
-    {
-      document.getElementById("c28").style.backgroundColor = "var(--backgroundLight)";
-    }
-  }
-}
-
-// FILTER SEARCH
-
-function AddFilter(key)
-{
-  if(searchString.length >= 5) return;
-  searchString += key;
-  FillFilter();
-}
-
-function RemoveFilter()
-{
-  if(searchString.length === 0) return;
-  searchString = searchString.substring(0, (searchString.length - 1));
-  FillFilter();
-}
-
-function FillFilter()
-{
-  for(let i = 0; i < fLength; i++)
-  {
-    if(i < searchString.length)
-    {
-      if(fArray[i].value != searchString[i])
-      {
-        fArray[i].value = searchString[i];
-        AnimateOnInput(fArray[i]);
-      }
-    }
-    else
-    {
-      if(fArray[i].value != "")
-      {
-        AnimateOnInput(fArray[i]);
-      }
-      fArray[i].value = "";
-    }
-  }
-  FilterWords();
-}
-
-// SOLVE INPUT
-
-function AddSolve(key)
-{
-  if(solveString.length >= 5) return;
-  solveString += key;
-  FillSolve();
-}
-
-function RemoveSolve()
-{
-  if(solveString.length === 0) return;
-  solveString = solveString.substring(0, (solveString.length - 1));
-  FillSolve();
-}
-
-function FillSolve()
-{
-  for(let i = 0; i < solveLength; i++)
-  {
-    if(i < solveString.length)
-    {
-      if(solveArray[i].value != solveString[i])
-      {
-        solveArray[i].value = solveString[i];
-        AnimateOnInput(solveArray[i]);
-      }
-    }
-    else
-    {
-      if(solveArray[i].value != "")
-      {
-        AnimateOnInput(solveArray[i]);
-      }
-      solveArray[i].value = "";
-    }
-  }
-}
-
-// NAME INPUT
-
-function AddName(key)
-{
-  if(nameString.length >= 5) return;
-  nameString += key;
-  FillName();
-}
-
-function RemoveName()
-{
-  if(nameString.length === 0) return;
-  nameString = nameString.substring(0, (nameString.length - 1));
-  FillName();
-}
-
-function FillName()
-{
-  for(let i = 0; i < nameLength; i++)
-  {
-    if(i < nameString.length)
-    {
-      if(nameArray[i].value != nameString[i])
-      {
-        nameArray[i].value = nameString[i];
-        AnimateOnInput(nameArray[i]);
-      }
-    }
-    else
-    {
-      if(nameArray[i].value != "")
-      {
-        AnimateOnInput(nameArray[i]);
-      }
-      nameArray[i].value = "";
-    }
-  }
-}
-
-// Toggle Overlay screens
-
-function ToggleScreen(screenNumber)
-{
-  if(playing) return;
-  
-  if(chartShow)
-  {
-    ShowChart(3);
-  }
-  
-  if(leaderShow)
-  {
-    ShowLeaderboard(2);
-  }
-  
-  if(showClue)
-  {
-    ShowClueScreen();
-  }
-  
-  if(screenNumber == 0) // all off
-  {  
-    solveCenter.style.display = "none";
-    solveButton.style.backgroundColor = "var(--active)";
-    
-    dictionaryCenter.style.display = "none";
-    changeDictionaryButton.style.backgroundColor = "var(--active)";
-    
-    infoCenter.style.display = "none";
-    helpButton.style.backgroundColor = "var(--active)";
-    
-    playCenter.style.display = "none";
-    playButton.style.backgroundColor = "var(--active)";
-    
-    toggleScreenNumber = 0;
-  }
-  else if(screenNumber == 1) // solve screen
-  {
-    if(toggleScreenNumber == 1)
-    {
-      solveCenter.style.display = "none";
-      solveButton.style.backgroundColor = "var(--active)";
-      inputOutputButton.style.backgroundColor = "var(--backgroundLight)";
-      toggleScreenNumber = 0;
-      
-      if(keyBoardSearch)
-      {
-        for(var i = 0; i < 26; i++)
-        {
-          if(toggleLetters[i] == true)
-          {
-            kArray[i].style.backgroundColor = "var(--green)";
-          }
-          else
-          {
-            kArray[i].style.backgroundColor = "var(--backgroundLight)";
-          }
-        }
-      }
-    
-      return;
-    }
-    
-    if(keyBoardSearch)
-    {
-      for(var i = 0; i < kLength; i++)
-      {
-        kArray[i].style.backgroundColor = "var(--backgroundLight)";
-      }
-    }
-
-    inputOutputButton.style.backgroundColor = "var(--active)";
-    
-    solveCenter.style.display = "";
-    solveButton.style.backgroundColor = "var(--backgroundLight)";
-    
-    dictionaryCenter.style.display = "none";
-    changeDictionaryButton.style.backgroundColor = "var(--active)";
-    
-    infoCenter.style.display = "none";
-    helpButton.style.backgroundColor = "var(--active)";
-    
-    playCenter.style.display = "none";
-    playButton.style.backgroundColor = "var(--active)";
-    
-    toggleScreenNumber = 1;
-  }
-  else if(screenNumber == 2) // dictionary screen
-  {
-    if(toggleScreenNumber == 2)
-    {
-      dictionaryCenter.style.display = "none";
-      changeDictionaryButton.style.backgroundColor = "var(--active)";
-      inputOutputButton.style.backgroundColor = "var(--backgroundLight)";
-      toggleScreenNumber = 0;
-      return;
-    }
-
-    inputOutputButton.style.backgroundColor = "var(--active)";
-    
-    solveCenter.style.display = "none";
-    solveButton.style.backgroundColor = "var(--active)";
-    
-    dictionaryCenter.style.display = "";
-    changeDictionaryButton.style.backgroundColor = "var(--backgroundLight)";
-    
-    infoCenter.style.display = "none";
-    helpButton.style.backgroundColor = "var(--active)";
-    
-    playCenter.style.display = "none";
-    playButton.style.backgroundColor = "var(--active)";
-    
-    toggleScreenNumber = 2;
-  }
-  else if(screenNumber == 3) // help screen
-  {
-    if(toggleScreenNumber == 3)
-    {
-      infoCenter.style.display = "none";
-      helpButton.style.backgroundColor = "var(--active)";
-      inputOutputButton.style.backgroundColor = "var(--backgroundLight)";
-      toggleScreenNumber = 0;
-      return;
-    }
-
-    inputOutputButton.style.backgroundColor = "var(--active)";
-    
-    solveCenter.style.display = "none";
-    solveButton.style.backgroundColor = "var(--active)";
-    
-    dictionaryCenter.style.display = "none";
-    changeDictionaryButton.style.backgroundColor = "var(--active)";
-    
-    infoCenter.style.display = "";
-    helpButton.style.backgroundColor = "var(--backgroundLight)";
-    
-    playCenter.style.display = "none";
-    playButton.style.backgroundColor = "var(--active)";
-    
-    toggleScreenNumber = 3;
-  }
-  else if(screenNumber == 4) // play screen
-  {
-    if(toggleScreenNumber == 4)
-    {
-      playCenter.style.display = "none";
-      playButton.style.backgroundColor = "var(--active)";
-      inputOutputButton.style.backgroundColor = "var(--backgroundLight)";
-      nameCenter.style.display = "none";
-      toggleScreenNumber = 0;
-      return;
-    }
-
-    inputOutputButton.style.backgroundColor = "var(--active)";
-    
-    solveCenter.style.display = "none";
-    solveButton.style.backgroundColor = "var(--active)";
-    
-    dictionaryCenter.style.display = "none";
-    changeDictionaryButton.style.backgroundColor = "var(--active)";
-    
-    infoCenter.style.display = "none";
-    helpButton.style.backgroundColor = "var(--active)";
-    
-    playCenter.style.display = "";
-    playButton.style.backgroundColor = "var(--backgroundLight)";
-
-    nameCenter.style.display = "none";
-    
-    toggleScreenNumber = 4;
-  }
-}
-
-// Solve message center functions
-
-function ValidateSolve()
-{
-  let wordToSolve = "";
-  
-  for(let i = 0; i < solveLength; i++)
-  {
-    let storeLetter1 = solveArray[i].value.toUpperCase();
-    wordToSolve += storeLetter1;
-  }
-  
-  if(wordToSolve == null || wordToSolve.length != 5)
-	{
-    if(wordToSolve != null && wordToSolve.length > 0)
-    {
-      solveCenterOutputText.innerHTML = "I need a 5 letter word to solve.";
-      AnimatePop(solveCenterOutputText);
-    }
-	}
-  else
-  {
-    Solve(wordToSolve);
-    
-    if(keyBoardSearch)
-    {
-      for(var i = 0; i < 26; i++)
-      {
-        if(toggleLetters[i] == true)
-        {
-          kArray[i].style.backgroundColor = "var(--green)";
-        }
-        else
-        {
-          kArray[i].style.backgroundColor = "var(--backgroundLight)";
-        }
-      }
-    }
-      
-    solveCenterOutputText.innerHTML = "";
-  }
-}
-
-function RandomSolve()
-{
-  if(playing) return;
-  
-  thinking = true;
-
-  $.ajax(
-  {
-    method: "POST",
-    url: "/RandomSolve",
-    data:
-    {
-      action:'RandomSolve',
-      dictionary:dictionary
-    },
-    success:function(result)
-    {
-      solveString = result;
-      FillSolve();
-      thinking = false;
-    },
-    error:function(result)
-    {
-      thinking = false;
-    }
-  });
-}
-
-// Help functions
-
-// Play game
-
-function NewGameOrPlayScreen()
-{
-  if(gameState == "Arcade")
-  {
-    if(arcadeActive)
-    {
-      TerminateArcade();
-      return;
-    }
-    if(showClue)
-    {
-      ShowClueScreen();
-    }
-  }
-  if(playing)
-  {
-    gameState = "Random";
-    NewGame();
-    if(gameState == "Arcade")
-    {
-      
-    }
-  }
-  else
-  {
-    ToggleScreen(4);
-  }
-}
-
-function PlayRandomNewGame()
-{
-  gameState = "Random";
-  NewGame();
-}
-
-function PlayArcadeNewGame()
-{
-  gameState = "Arcade";
-  arcadeActive = true;
-  NewGame();
-}
-
-function NewGame()
-{
-  loadingSaves = false;
-  thinking = true;
-  
-  if(playing == true && gameState !== "Arcade")
-  {
-    ResetAfterGame();
-    thinking = false;
-    return;
-  }
-  
-  Reset();
-  ToggleScreen(0);
-  currentPage = true;
-  Switch();
-  
-  otherControls.style.display = "none";
-  playTextPanel.style.display = "";
-  
-  playTextPanel.innerHTML = "";
-  
-  playing = true;
-  guessLevel = 1;
-  winCount = 0;
-  
-  playButton.style.backgroundColor = "var(--green)";
-  
-  document.getElementById("c28").style.backgroundColor = "var(--backgroundLight)";
-  
-  if(gameState == "Random")
-  {
-    $.ajax(
-    {
-      method: "POST",
-      url: "/NewGame",
-      data:
-      {
-        action:'NewGame',
-        dictionary:dictionary
-      },
-      success:function(result)
-      {
-        thinking = false;
-      },
-      error:function(result)
-      {
-        thinking = false;
-      }
-    });
-  }
-  else if(gameState == "Daily")
-  {
-    // session daily answer has already been set, but load any existing answers
-    
-    // check if the last game played was today otherwise ignore
-    if(localStorage.savedDailyLastDatePlayed)
-    {
-      const date = new Date();
-      
-      const year = date.getFullYear();
-      const month = date.getMonth();
-      const day = date.getDate();
-      
-      const todayToCheck = year + "-" + (month + 1) + "-" + day;
-      
-      if(localStorage.savedDailyLastDatePlayed === todayToCheck)
-      {
-        
-        // check if there are any guesses already made today
-        if(localStorage.savedDailyLastGuessSet)
-        {
-          let guessesMade = JSON.parse(localStorage.savedDailyLastGuessSet);
-          // set to true, if the player already solved then won't save new win
-          loadingSaves = true;
-          demo2(guessesMade);
-        }
-      }
-    }
-    thinking = false;
-  }
-  else if(gameState == "Arcade")
-  {
-    ClearArcadeInterval();
-
-    $.ajax(
-    {
-      method: "POST",
-      url: "/NewArcade",
-      data:
-      {
-        action:'NewArcade',
-        dictionary:dictionary
-      },
-      success:function(result)
-      {
-        thinking = false;
-      },
-      error:function(result)
-      {
-        thinking = false;
-      }
-    });
-    
-    clueArray = [];
-    
-    arcadeCount = 0;
-    arcadeTimer = 300;
-    arcadeClues = 3;
-    
-    arcadePaused = false;
-    
-    FillArcadeButtons(true);
-    
-    arcadeInterval = setInterval(DegradeArcadeTimer, 1000);
-    
-    let updateDiv = document.getElementById("arcadeTimerDiv");
-    let formatM = Math.floor(arcadeTimer / 60);
-    let formatS = arcadeTimer % 60;
-    if(formatS < 10) formatS = "0" + formatS;
-    let formattedTime = formatM + ":" + formatS;
-    if(updateDiv != null) updateDiv.innerHTML = formattedTime + " / " + arcadeCount;
-  }
-}
-
-function NextArcadeGame()
-{
-  if(arcadeReset)
-  {
-    gameState = "Arcade";
-    NewGame();
-  }
-  
-  thinking = true;
-
-  // clear the input grid
-  for(let i = 0; i < wLength; i++)
-  {
-    wArray[i].value = "";
-    wArray[i].dataset.state = "excluded";
-    wArray[i].style.backgroundColor = "var(--backgroundLight)";
-    let el = document.getElementById("s" + wArray[i].id[1] + wArray[i].id[2]);
-    el.dataset.state = "excluded";
-  }
-  
-  // reset the keyboard
-  inputString = "";
-  searchString = "";
-  for(let i = 0; i < kLength; i++)
-  {
-    kArray[i].style.backgroundColor = "var(--backgroundLight)";
-  }
-  
-  clueArray = [];
-  for(let i = 0; i < clueInputArray.count; i++)
-  {
-    clueInputArray[i].style.backgroundColor = "var(--active)";
-  }
-  
-  otherControls.style.display = "none";
-  playTextPanel.style.display = "";
-  guessLevel = 1;
-  winCount = 0;
-  
-  playing = true;
-  gameState = "Arcade";
-  
-  document.getElementById("c28").style.backgroundColor = "var(--backgroundLight)";
-  
-  if(gameState == "Arcade")
-  {
-    ClearArcadeInterval();
-
-    $.ajax(
-    {
-      method: "POST",
-      url: "/NewArcade",
-      data:
-      {
-        action:'NewArcade',
-        dictionary:dictionary
-      },
-      success:function(result)
-      {
-        if(arcadeReset)
-        {
-          arcadeCount = 0;
-          arcadeTimer = 300;
-          arcadeClues = 3;
-          arcadeReset = false;
-        }
-        else
-        {
-          arcadeTimer = arcadeTimer + 300;
-          arcadeClues = arcadeClues + 1;
-        }
-        
-        arcadePaused = false;
-        
-        FillArcadeButtons(true);
-
-        arcadeInterval = setInterval(DegradeArcadeTimer, 1000);
-        
-        let updateDiv = document.getElementById("arcadeTimerDiv");
-        if(updateDiv != null) updateDiv.innerHTML = GetFormattedTimeAndCount();
-        
-        thinking = false;
-      },
-      error:function(result)
-      {
-        thinking = false;
-      }
-    });
-  }
-}
-
-function ShowClueScreen()
-{
-  showClue = !showClue;
-  if(showClue)
-  {
-    clueCenter.style.display = "";
-    
-    for(let i = 0; i < clueInputArray.length; i++)
-    {
-      clueInputArray[i].value = "";
-      clueInputArray[i].backgroundColor = "var(--active)";
-    }
-    
-    for(let i = 0; i < wArray.length; i+=5)
-    {
-      for(let p = 0; p < 5; p++)
-      {
-        if(wArray[i + p].dataset.state == "rightPosition")
-        {
-          clueInputArray[p].value = wArray[i+p].value;
-          AnimateOnInput(clueInputArray[p]);
-        }
-      }
-    }
-    
-    for(let i = 0; i < clueArray.length; i++)
-    {
-      let clueIndex = clueArray[i][1];
-      let letter = clueArray[i][0];
-      clueInputArray[clueIndex].value = letter;
-    }
-    
-    clueCenterOutputText.innerHTML = arcadeClues + " clues remaining.";
-  }
-  else
-  {
-    clueCenter.style.display = "none";
-  }
-}
-
-function RequestClue()
-{
-  if(working || arcadeClues == 0)
-  {
-    return;
-  }
-  working = true;
-  if(arcadeClues > 0)
-  {
-    let clueString = "";
-    
-    for(let i = 0; i < 5; i++)
-    {
-      if(clueInputArray[i].value != "")
-      {
-        clueString += clueInputArray[i].value;
-      }
-      else
-      {
-        clueString += "-";
-      }
-    }
-
-    $.ajax(
-    {
-      method: "POST",
-      url: "/GetArcadeClue",
-      data:
-      {
-        action:'GetArcadeClue',
-        dictionary:dictionary,
-        clue:clueString.toUpperCase()
-      },
-      success:function(result)
-      {
-        if(result === "5ERROR") return;
-        let tempArray = JSON.parse(result);
-        FillClue(tempArray);
-        arcadeClues--;
-        clueCenterOutputText.innerHTML = arcadeClues + " clues remaining.";
-        let clueButton = document.getElementById("useClueArcadeButton");
-        if(clueButton != null) clueButton.innerHTML = arcadeClues;
-      },
-      error:function(result)
-      {
-
-      }
-    });
-    working = false;
-  }
-}
-
-function FillClue(array)
-{
-  clueArray.push(array);
-  clueInputArray[array[1]].value = array[0];
-}
-
-function ClearArcadeInterval()
-{
-  clearInterval(arcadeInterval);
-}
-
-function DegradeArcadeTimer()
-{
-  arcadeTimer--;
-  
-  let updateDiv = document.getElementById("arcadeTimerDiv");
-  if(updateDiv != null) updateDiv.innerHTML = GetFormattedTimeAndCount();
-  
-  if(arcadeTimer <= 0)
-  {
-    arcadePaused = true;
-    FillArcadeButtons(true);
-    EndArcade(true);
-  }
-}
-
-function EndArcade(endGame)
-{  
-  let clueButton = document.getElementById("useClueArcadeButton");
-  if(clueButton != null) clueButton.style.backgroundColor = "var(--backgroundLight)";
-          
-  let updateDiv = document.getElementById("arcadeTimerDiv");
-  if(updateDiv != null) updateDiv.innerHTML = GetFormattedTimeAndCount();
-  if(updateDiv != null) updateDiv.style.backgroundColor = "var(--backgroundLight)";
-  
-  ClearArcadeInterval();
-  
-  if(endGame)
-  {
-    arcadePaused = true;
-    FillArcadeButtons(true);
-    document.getElementById("endArcadeRunButton").onclick = null;
-    arcadeReset = true;
-    let button = document.createElement('button');
-    button.innerHTML = `+`;
-    button.onclick = function() { NextArcadeGame(); };
-    button.id = "nextArcadeButton";
-    button.className = "playSolveButtons";
-    playTextPanel.appendChild(button);
-    let buttonToAdd = document.getElementById("nextArcadeButton");
-    AnimatePop(buttonToAdd);
-    
-    if(arcadeCount == 0) return;
-    
-    nameCenter.style.display = "";
-    
-    nameScreenBool = true;
-  }
-}
-
-function SubmitToLeaderboard()
-{
-  if(nameString.length < 5)
-  {
-    nameCenterOutputText.innerHTML = "Please enter a five letter name.";
-    AnimatePop(nameCenterOutputText);
-    return;
-  }
-  
-  let usernameToSubmit = nameString.toUpperCase();
-  
-  $.ajax(
-  {
-    method: "POST",
-    url: "/SaveArcade",
-    data:
-    {
-      action:'SaveArcade',
-      dictionary:dictionary,
-      gameState: gameState,
-      arcadeCount: arcadeCount,
-      username: usernameToSubmit
-    },
-    success:function(result)
-    {
-
-    },
-    error:function(result)
-    {
-
-    }
-  });
-  TerminateArcade();
-}
-
-function ShowNameEnter()
-{
-  nameScreenBool = true;
-  nameCenter.style.display = "";
-}
-
-function CloseNameEnter()
-{
-  nameScreenBool = false;
-  nameCenter.style.display = "none";
-}
-
-function GetFormattedTimeAndCount()
-{
-  let formatM = Math.floor(arcadeTimer / 60);
-  let formatS = arcadeTimer % 60;
-  if(formatS < 10) formatS = "0" + formatS;
-  let formattedTime = formatM + ":" + formatS + " / " + arcadeCount;
-  
-  return formattedTime;
-}
-
-//https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
-
-function Sleep(ms)
-{
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function demo() {
-    for (let i = 0; i < 5; i++) {
-        await Sleep(i * 1000);
-    }
-}
-
-async function demo2(array)
-{
-  inputString = "";
-  for (let i = 0; i < array.length; i++)
-  {
-    let newInputString = array[i].toString();
-    newInputString = newInputString.replace(/,/g, '');
-    
-    inputString += newInputString.toUpperCase();
-    let newInputStringLength = newInputString.length;
-    
-    let counter = 0;
-    for(let m = ( i * 5 ); m < ( ( i * 5 ) + newInputStringLength ); m++)
-    {
-      wArray[m].value = newInputString[counter];
-      AnimateOnInput(wArray[m]);
-      counter++;
-    }
-    await ProcessGuess(array[i]).then(resolve =>{
-      UpdateBoard(resolve, array[i]);
-    });
-    await Sleep(500);
-  }
-}
-
-// processing function
-function ProcessGuess(item)
-{
-  let answerToPass = "TRUE";
-  if(guessFromAnswers)
-  {
-    answerToPass = "TRUE";
-  }
-  else
-  {
-    answerToPass = "FALSE";
-  }
-  return new Promise(function(resolve, reject) {
-    $.ajax(
-    {
-      method: "POST",
-      url: "/SubmitGuess",
-      data:
-      {
-        action:'SubmitGuess',
-        flag:"process",
-        dictionary:dictionary,
-        allGuesses: inputString,
-        guess:item,
-        gameState: gameState,
-        guessFromAnswers: guessFromAnswers
-      },
-      success:function(result)
-      {
-        resolve(result);
-      },
-      error:function(result)
-      {
-        reject(result);
-      }
-    });
-  });
-}
-
-function UpdateBoard(result, item)
-{
-  playTextPanel.innerHTML = "";
-
-  let resultArray = JSON.parse(result);
-  
-  let keyArray = [];
-  for(let i = 0; i < resultArray[1].length; i++)
-  {
-    for(let n = 0; n < resultArray[1][i].length; n++)
-    {
-      keyArray.push(resultArray[1][i][n]);
-    }
-  }
-  UpdatePostGuess(resultArray[0], guessLevel, item, keyArray, inputString);
-  guessLevel++;
+  Post('FilterByKeys', data)
+  .then(result => {
+    FillOutput(JSON.parse(result));
+    ToggleScreen(2);
+  })
+  .catch((error) => console.error(error));
 }
 
 function SubmitGuess()
 {
-  if(gameState === "Arcade" && arcadePaused === true)
-  {
-    return;
-  }
+  if(playing === '') return;
+  let guess = '';
+  let guessNum = guessLevel * 5;
+  for(let i = 0; i < 5; i++) guess += wArray[i + guessNum].innerHTML;
 
-  let answerToPass = "TRUE";
-  
-  if(guessFromAnswers)
-  {
-    answerToPass = "TRUE";
-  }
-  else
-  {
-    answerToPass = "FALSE";
-  }
-  
-  if(loadingSaves)
-  {
-    loadingSaves = false;
-  }
-    
-	let guessToCheck = "";
-  
-  thinking = true;
-	
-	if(guessLevel == 1)
-	{
-		guessToCheck = wArray[0].value + 
-				wArray[1].value + 
-				wArray[2].value + 
-				wArray[3].value + 
-				wArray[4].value;
-	}
-	
-	if(guessLevel == 2)
-	{
-		guessToCheck = wArray[5].value + 
-				wArray[6].value + 
-				wArray[7].value + 
-				wArray[8].value + 
-				wArray[9].value;
-	}
-	
-	if(guessLevel == 3)
-	{
-		guessToCheck = wArray[10].value + 
-				wArray[11].value + 
-				wArray[12].value + 
-				wArray[13].value + 
-				wArray[14].value;
-	}
-	
-	if(guessLevel == 4)
-	{
-		guessToCheck = wArray[15].value + 
-				wArray[16].value + 
-				wArray[17].value + 
-				wArray[18].value + 
-				wArray[19].value;
-	}
-	
-	if(guessLevel == 5)
-	{
-		guessToCheck = wArray[20].value + 
-				wArray[21].value + 
-				wArray[22].value + 
-				wArray[23].value + 
-				wArray[24].value;
-	}
-	
-	if(guessLevel == 6)
-	{
-		guessToCheck = wArray[25].value + 
-				wArray[26].value + 
-				wArray[27].value + 
-				wArray[28].value + 
-				wArray[29].value;
-	}
-
-  $.ajax(
-  {
-    method: "POST",
-    url: "/SubmitGuess",
-    data:
-    {
-      action:'SubmitGuess',
-      dictionary:dictionary,
-      allGuesses: inputString,
-      guess:guessToCheck,
-      gameState: gameState,
-      guessFromAnswers: answerToPass 
-    },
-    success:function(result)
-    {
-      if(result === "NotInArray")
-      {
-        document.getElementById("c28").style.backgroundColor = "var(--yellow)";
-        playTextPanel.innerHTML = "Invalid word.";
-        AnimatePop(playTextPanel);
-      }
-      else if(result === "NoGood")
-      {
-        document.getElementById("c28").style.backgroundColor = "var(--yellow)";
-        playTextPanel.innerHTML = "Known letters not used.";
-        AnimatePop(playTextPanel);
-      }
-      else if(result === "LessThanFive")
-      {
-        document.getElementById("c28").style.backgroundColor = "var(--yellow)";
-        playTextPanel.innerHTML = "Not five letters.";
-        AnimatePop(playTextPanel);
-      }
-      else
-      {
-        let resultArray = JSON.parse(result);
-        
-        let keyArray = [];
-        for(let i = 0; i < resultArray[1].length; i++)
-        {
-          for(let n = 0; n < resultArray[1][i].length; n++)
-          {
-            keyArray.push(resultArray[1][i][n]);
-          }
-        }
-        UpdatePostGuess(resultArray[0], guessLevel, guessToCheck, keyArray, inputString);
-        guessLevel++;
-      }
-      thinking = false;
-    },
-    error:function(result)
-    {
-      thinking = false;
-    }
+  let data = JSON.stringify({
+    'inputString' : inputString,
+    'guess' : guess,
+    'playing' : playing,
   });
+
+  Post('SubmitGuess', data)
+  .then(result => {
+    // console.log(result);
+    ProcessGuess(result);
+  })
+  .catch((error) => console.error(error));
 }
 
-async function UpdatePostGuess(result, guessLevel, guess, keys, input)
+function ProcessGuess(json)
 {
-  let num1 = (guessLevel * 5) - 5;
-  let num2 = ((guessLevel * 5) - 5) + 1;
-  let num3 = ((guessLevel * 5) - 5) + 2;
-  let num4 = ((guessLevel * 5) - 5) + 3;
-  let num5 = ((guessLevel * 5) - 5) + 4;
-  
-  let arr1 = [num1, num2, num3, num4, num5];
-  
-  winCount = 0;
-  
-  for(let i = 0; i < 5; i++)
+  let result = JSON.parse(json);
+  if(result === "NotInArray" || result === "NoGood" || result === "LessThanFive" || result === "NoWord")
   {
-    let letter = guess[i].toUpperCase();
-    let iAlpha = alphabet.indexOf(letter);
-    
-    let el1 = document.getElementById("w" + (guessLevel - 1) + i);
-    let el2 = document.getElementById("s" + (guessLevel - 1) + i);
-    
-    await Sleep(100);
-    AnimateOnColour(el1);
-
-    if(result[i] == 1)
-    {
-      wArray[arr1[i]].style.backgroundColor = "var(--yellow)";
-      el1.dataset.state = "wrongPosition";
-      el2.dataset.state = "wrongPosition";
-    }
-    else if(result[i] == 2)
-    {
-      wArray[arr1[i]].style.backgroundColor = "var(--green)";
-      el1.dataset.state = "rightPosition";
-      el2.dataset.state = "rightPosition";
-      winCount++;
-    }
-    else
-    {
-      el1.dataset.state = "excluded";
-      el2.dataset.state = "excluded";
-    }
+    if(result === "NotInArray") PLAY_PANEL.innerHTML = "Invalid word.";
+    else if(result === "NoGood") PLAY_PANEL.innerHTML = "Known letters not used.";
+    else if(result === "LessThanFive") PLAY_PANEL.innerHTML = "Not five letters.";
+    else if(result === "NoWord") PLAY_PANEL.innerHTML = "No answer set.";
+    kArray[28].dataset.state = "yellow";
+    Pop(PLAY_PANEL);
   }
-  
-  // update keys
-  // first clean the keys
-  for(let i = 0; i < input.length; i++)
-  {
-    let iAlpha = alphabet.indexOf(input[i].toUpperCase());
-    let keyEl = document.getElementById("b" + iAlpha);
-    
-    keyEl.style.backgroundColor = "var(--backgroundLight)";
-  }
-  // then update with greens, yellows or disabled
-  for(let i = 0; i < input.length; i++)
-  {
-    let iAlpha = alphabet.indexOf(input[i].toUpperCase());
-    let keyEl = document.getElementById("b" + iAlpha);
+  else UpdatePostGuess(result);
+}
 
-    if(keys[i] == -1)
-    {
-      keyEl.style.backgroundColor = "var(--disabled)";
-    }
-  }
-  for(let i = 0; i < input.length; i++)
-  {
-    let iAlpha = alphabet.indexOf(input[i].toUpperCase());
-    let keyEl = document.getElementById("b" + iAlpha);
+async function UpdatePostGuess(guesses)
+{
+  let winCount = 0;
+  let keys = Array.from(kArray).map(key => key.innerHTML);
 
-    if(keys[i] == 1)
+  for(let g = 0; g < guesses.length; g++)
+  {
+    for(let i = 0; i < guesses[g].length; i++)
     {
-      keyEl.style.backgroundColor = "var(--yellow)";
-    }
-    else if(keys[i] == 2)
-    {
-      keyEl.style.backgroundColor = "var(--green)";
+      let index = ( g * 5 ) + i;
+
+      if(guesses[g][i] === 1) wArray[index].dataset.state = "wrongPosition";
+      else if(guesses[g][i] === 2)
+      {
+        wArray[index].dataset.state = "rightPosition";
+        winCount++;
+      }
+      else wArray[index].dataset.state = "excluded";
+
+      if(index >= (inputString.length - 5))
+      {
+        await Sleep(100);
+        Pop(wArray[index]);
+      }
+
+      let keyIndex = keys.indexOf(inputString[index].toUpperCase());
+
+      if(guesses[g][i] === -1) kArray[keyIndex].dataset.state = "disabled";
+      else if(guesses[g][i] === 1) kArray[keyIndex].dataset.state = "yellow";
+      else if(guesses[g][i] === 2) kArray[keyIndex].dataset.state = "green";
     }
   }
   
   // if daily game state then save date and latest guess list for reloading
-  if(gameState == "Daily")
+  if(playing === "D")
   {
     const date = new Date();
       
@@ -2616,8 +669,7 @@ async function UpdatePostGuess(result, guessLevel, guess, keys, input)
     
     localStorage.setItem("savedDailyLastDatePlayed", saveDate);
     
-    // save inputString as guess array
-    let output2 = [];
+    let saveArray = [];
     let inputLength = inputString.length;
     
     for(let i = 0; i < inputLength; i+=5)
@@ -2627,174 +679,87 @@ async function UpdatePostGuess(result, guessLevel, guess, keys, input)
       inputString[i + 2] + 
       inputString[i + 3] + 
       inputString[i + 4];
-      output2.push(newWord.toUpperCase());
+      saveArray.push(newWord.toUpperCase());
     }
     
-    let dailyGuesses = JSON.stringify(output2);
-    savedDailyLastGuessSet = output2;
+    let dailyGuesses = JSON.stringify(saveArray);
     
     localStorage.setItem("savedDailyLastGuessSet", dailyGuesses);
   }
   
-  document.getElementById("c28").style.backgroundColor = "var(--backgroundLight)";
-  if(winCount == 5 && guessLevel <= 6)
-  {
-    if(gameState == "Arcade")
-    {
-      arcadePaused = true;
-      FillArcadeButtons(false);
-      arcadeCount++;
-      FillResult("won");
-      EndArcade(false);
-    }
-    else
-    {
-      EndGame("won");
-    }
-  }
-  if(winCount < 5 && guessLevel >= 6)
-  {
-    if(gameState == "Arcade")
-    {
-      arcadePaused = true;
-      FillArcadeButtons(false);
-      FillResult("lose");
-      EndArcade(true);
-    }
-    else
-    {
-      EndGame("lose");
-    }
-  }
+  kArray[28].dataset.state = "normal";
+  if(winCount === 5 && guessLevel <= 5) EndGame("won");
+  else if(winCount < 5 && guessLevel >= 5) EndGame("lose");
+  else guessLevel++;
 }
 
 function EndGame(winState)
 {
-  thinking = true;
-  
-  let theAnswer = "";
-  $.ajax(
-  {
-    method: "POST",
-    url: "/PostGame",
-    data:
-    {
-      action:'PostGame',
-      request:dictionary,
-      gameState: gameState
-    },
-    success:function(result)
-    {
-      theAnswer = result;
-      FillResult(winState, theAnswer);
-      FillSavedResult(guessLevel, winState);
-      thinking = false;
-    },
-    error:function(result)
-    {
-      theAnswer = "ERROR";
-      FillResult(winState, theAnswer);
-      thinking = false;
-    }
+  let data = JSON.stringify({
+    'playing' : playing,
   });
+
+  Post('PostGame', data)
+  .then(json => {
+    ConfirmResult(json, winState);
+    SaveResult(winState);
+  })
+  .catch((error) => console.error(error));
 }
 
-function FillResult(winState, theAnswer)
+function ConfirmResult(json, winState)
 {
-  let src1 = "images/search.svg";
+  let answer = JSON.parse(json);
+
+  let src = "images/search.svg";
+
+  let solve = document.createElement('button');
+  solve.className = 'mx-4 active:scale-95 hover:scale-105';
+  let img = document.createElement('img');
+  img.src = src;
+  solve.appendChild(img);
+  solve.onclick = function() {
+    solveString = answer;
+    for(let i = 0; i < kLength; i++) if(kArray[i].dataset.state !== 'normal') kArray[i].dataset.state = 'normal';
+    Solve();
+  };
  
-  if(gameState == "Random" || gameState == "Daily")
+  if(winState === "won")
   {
-    if(winState == "won")
-    {
-      let button = document.createElement('button');
-      button.innerHTML = `<img class="playSolveImg" src=` + src1 + `></img>`;
-      button.onclick = function() { SolveAfterGame(theAnswer); };
-      button.id = "solveAfterGameButton";
-      button.className = "playSolveButtons";
-      playTextPanel.innerHTML = `Well done.   `;
-      playTextPanel.appendChild(button);
-      if(gameState == "Random")
-      {
-        let button = document.createElement('button');
-        button.innerHTML = `+`;
-        button.onclick = function() { NewGameAfterGame(); };
-        button.id = "newGameAfterGameButton";
-        button.className = "playSolveButtons";
-        playTextPanel.appendChild(button);
-      }
-    }
-    else if(winState == "lose")
-    { 
-      let button = document.createElement('button');
-      button.innerHTML = `<img class="playSolveImg" src=` + src1 + `></img></button>`;
-      button.onclick = function() { SolveAfterGame(theAnswer); };
-      button.id = "solveAfterGameButton";
-      button.className = "playSolveButtons";
-      playTextPanel.innerHTML = `It was ` + theAnswer + `. `;
-      playTextPanel.appendChild(button);
-      if(gameState == "Random")
-      {
-        let button = document.createElement('button');
-        button.innerHTML = `+`;
-        button.onclick = function() { NewGameAfterGame(); };
-        button.id = "newGameAfterGameButton";
-        button.className = "playSolveButtons";
-        playTextPanel.appendChild(button);
-      }
-    }
+    PLAY_PANEL.innerHTML = `Well done.`;
+    PLAY_PANEL.appendChild(solve);
   }
-  AnimatePop(playTextPanel);
-  if(gameState == "Arcade")
+  else if(winState === "lose")
+  { 
+    PLAY_PANEL.innerHTML = `It was ` + answer + `. `;
+    PLAY_PANEL.appendChild(solve);
+  }
+
+  if(playing === "R")
   {
-    if(winState == "lose")
-    {
-      // if lost, void the buttons
-      document.getElementById("useClueArcadeButton").onclick = null;
-    }
-    else if(winState == "won")
-    {
-      let button = document.createElement('button');
-      button.innerHTML = `+`;
-      button.onclick = function() { NextArcadeGame(); };
-      button.id = "nextArcadeButton";
-      button.className = "playSolveButtons";
-      playTextPanel.appendChild(button);
-      let buttonToAdd = document.getElementById("nextArcadeButton");
-      AnimatePop(buttonToAdd);
-    }
+    let another = document.createElement('button');
+    another.className = 'mx-4 active:scale-95 hover:scale-105';
+    another.innerHTML = `+`;
+    another.onclick = function() { PlayRandom(); };
+    PLAY_PANEL.appendChild(another);
   }
+
+  Pop(PLAY_PANEL);
 }
 
-function FillSavedResult(guessLevel, winState)
+function SaveResult(winState)
 {
   // if lost the game increment guessLevel to distinguish from games where got it in 6
-  if(winState == "lose") guessLevel++;
-
-  /*
-    guesslevel is 1 more than number of guesses so 7 = 6, and 8 = didn't get it
-    savedResultsRandom saves list of guesses
-    if guessLevel 7 or less, increment current streak
-    if currentstreak bigger than max streak, update, else reset
-  */
+  if(winState === "lose") guessLevel++;
   
-  if(gameState === "Random")
+  if(playing === "R")
   {
     savedResultsRandom.push(guessLevel);
   
-    if(guessLevel < 7)
-    {
-      savedCurrentStreakRandom++;
-    }
-    else
-    {
-      savedCurrentStreakRandom = 0;
-    }
+    if(guessLevel < 6) savedCurrentStreakRandom++;
+    else savedCurrentStreakRandom = 0;
     
-    if(savedCurrentStreakRandom > savedMaxStreakRandom)
-    {
-      savedMaxStreakRandom = savedCurrentStreakRandom;
-    }
+    if(savedCurrentStreakRandom > savedMaxStreakRandom) savedMaxStreakRandom = savedCurrentStreakRandom;
     
     let output = JSON.stringify(savedResultsRandom);
     
@@ -2805,9 +770,9 @@ function FillSavedResult(guessLevel, winState)
       localStorage.setItem("savedMaxStreakRandom", savedMaxStreakRandom);
     }
   }
-  else if(gameState === "Daily")
+  else if(playing === "D")
   {
-    // don't do anything if loading saves
+    // don't do anything if loading saves from early daily attempt on same day
     if(loadingSaves)
     {
       loadingSaves = false;
@@ -2832,19 +797,10 @@ function FillSavedResult(guessLevel, winState)
     
     savedResultsDaily.push(guessLevel);
   
-    if(guessLevel < 7)
-    {
-      savedCurrentStreakDaily++;
-    }
-    else
-    {
-      savedCurrentStreakDaily = 0;
-    }
+    if(guessLevel < 6) savedCurrentStreakDaily++;
+    else savedCurrentStreakDaily = 0;
     
-    if(savedCurrentStreakDaily > savedMaxStreakDaily)
-    {
-      savedMaxStreakDaily = savedCurrentStreakDaily;
-    }
+    if(savedCurrentStreakDaily > savedMaxStreakDaily) savedMaxStreakDaily = savedCurrentStreakDaily;
     
     let output = JSON.stringify(savedResultsDaily);
     
@@ -2872,419 +828,473 @@ function FillSavedResult(guessLevel, winState)
   }
 }
 
-function FillArcadeButtons(saved)
-{
-  let src1 = "images/close.svg";
-  
-  playTextPanel.innerHTML = '';
 
-  if(arcadePaused)
+
+
+
+
+// LIST LOGIC
+
+function FilterWords()
+{
+  let filterLetters = ["-1", "-1", "-1", "-1", "-1"];
+
+  for(let i = 0; i < fLength; i++)
   {
-    if(saved)
-    {
-      playTextPanel.innerHTML += `
-      <button class="playSolveButtons" id="endArcadeRunButton">
-        <img class="playArcadeImg" src=` + src1 + `></img>
-      </button>`;
-    }
-    else
-    {
-      let button = document.createElement('button');
-      button.innerHTML = `<img class="playArcadeImg" src=` + src1 + `></img>`;
-      button.onclick = function() { ShowNameEnter(); };
-      button.id = "endArcadeRunButton";
-      button.className = "playSolveButtons";
-      playTextPanel.appendChild(button);
-    }
+    if(fArray[i].innerHTML != "" && fArray[i].innerHTML != "-")
+    filterLetters[i] = fArray[i].innerHTML.toUpperCase();
   }
-  
-  playTextPanel.innerHTML += `
-  <div class="playSolveButtons" id="arcadeTimerDiv"> ` + GetFormattedTimeAndCount(); + ` </div>`;
-  
-  if(arcadePaused)
+
+  let allDiv = document.getElementsByClassName('wordListClass');
+  allDiv = Array.prototype.slice.call(allDiv, 0);
+
+  for(let i = 0; i < allDiv.length; i++)
   {
-    playTextPanel.innerHTML += `<div class="playSolveButtons">` + arcadeClues + `</div>`;
+    let check = false;
+    for(let a = 0; a < 5; a++)
+    {
+      if(filterLetters[a] != "-1")
+      {
+        let filterL = filterLetters[a].replace(/\s/g, "");
+        let divL = allDiv[i].children[a + 1].innerHTML.replace(/\s/g, "");
+        if(filterL != divL) check = true;
+      }
+    }
+    if(check) allDiv[i].style.display = "none";
+    else allDiv[i].style.display = "";
+  }
+}
+
+
+
+
+
+// SOLVE LOGIC
+
+const SOLVE_RANDOM = document.getElementById('SOLVE_RANDOM');
+const SOLVE_SOLVE = document.getElementById('SOLVE_SOLVE');
+const SOLVE_TEXT = document.getElementById('SOLVE_TEXT');
+
+const LIST_BODY = document.getElementById('LIST_BODY');
+
+function SolveRandom()
+{
+  let data = JSON.stringify({ });
+  Post('RandomSolve', data)
+  .then(FillSolve)
+  .catch((error) => console.error(error));
+}
+
+function Solve()
+{
+  let data = JSON.stringify({ 'solveString' : solveString });
+  Post('Solve', data)
+  .then(ResolveSolve)
+  .catch((error) => console.error(error));
+}
+
+function FillSolve(result)
+{
+  solveString = '';
+  for(let i = 0; i < sLength; i++)
+  {
+    sArray[i].innerHTML = result[i];
+    solveString += result[i];
+    Pop(sArray[i]);
+  }
+}
+
+function ResolveSolve(result)
+{
+  let output = JSON.parse(result);
+  if(output === "-1")
+  {
+    SOLVE_TEXT.innerHTML = "This word is not in the current dictionary.";
+    Pop(SOLVE_TEXT);
   }
   else
   {
-    let button = document.createElement('button');
-    button.innerHTML = arcadeClues;
-    button.onclick = function() { ShowClueScreen(); };
-    button.id = "useClueArcadeButton";
-    button.className = "playSolveButtons";
-    playTextPanel.appendChild(button);
+    FillOutput(output[1]);
+    SolveResponse(output[2], output[0]);
+    ToggleScreen(1);
+    SOLVE_TEXT.innerHTML = "";
   }
 }
 
-function NewGameAfterGame()
+async function SolveResponse(outputList, guessList)
 {
-  playing = false;
-  gameState = "Random";
-  NewGame();
+  let guessArr = [];
+  let guessCount = guessList.length;
+  
+  for(let i = 0; i < guessCount; i++)
+  {
+    let iLength = guessList[i].length;
+    
+    if(iLength > 0) for(var g = 0; g < iLength; g++) guessArr.push(guessList[i][g]);
+  }
+  
+  let newInput = guessArr.toString();
+  let trimResult = newInput.replace(/\s*,\s*|\s+,/g, '');
+  inputString = trimResult;
+  
+  let colorArr = [];
+  for(let i = 0; i < outputList.length; i++)
+  {
+    for(let n = 0; n < outputList[i].length; n++) colorArr.push(outputList[i][n]);
+  }
+  
+  let cLength = colorArr.length;
+  
+  // clear array
+  for(let i = 0; i < wLength; i++)
+  {
+    wArray[i].innerHTML = "";
+    wArray[i].dataset.state = "excluded";
+  }
+  
+  // add format to letters
+  for(let i = 0; i < cLength; i++)
+  {   
+    await Sleep(100);
+    
+    wArray[i].innerHTML = guessArr[i];
+    Pop(wArray[i]);
+    
+    if(colorArr[i] === -1) continue;
+    else if(colorArr[i] === 1) wArray[i].dataset.state = "wrongPosition";
+    else if(colorArr[i] === 2) wArray[i].dataset.state = "rightPosition";
+  }
 }
 
-function ShowChart(dataSet)
+function FillOutput(wordArray)
 {
-  if(dataSet == 1)
+  LIST_BODY.innerHTML = "";
+
+  for(let i = 0; i < wordArray.length; i++)
   {
-    // random data
-    chartShow = true;
-    chartType.innerHTML = "Random.";
-    gameState = "Random";
-    FillChart();
-    chartCenter.style.display = "";
-  }
-  else if(dataSet == 2)
-  {
-    // global data
-    chartShow = true;
-    chartType.innerHTML = "Daily.";
-    gameState = "Daily";
-    FillChart();
-    chartCenter.style.display = "";
-  }
-  else if(dataSet == 3)
-  {
-    chartShow = false;
-    chartCenter.style.display = "none";
+    let row = document.createElement('DIV');
+    row.className = "wordListClass flex flex-row justify-center items-center w-full";
+    row.id = "r" + i;
+
+    // rank id
+    let cell0 = document.createElement('DIV');
+    cell0.className = "rounded-lg w-10 h-10 mx-2 uppercase flex justify-center items-center";
+    cell0.innerHTML = (i + 1);
+    row.appendChild(cell0);
+
+    for(let w = 0; w < wordArray[i][0].length; w++ )
+    {
+      // letters
+      let cell1 = document.createElement('DIV');
+      cell1.className = "rounded-lg w-10 h-10 mx-2 uppercase flex justify-center items-center";
+      cell1.innerHTML = wordArray[i][0][w];
+      row.appendChild(cell1);
+    }
+
+    LIST_BODY.appendChild(row);
   }
 }
 
-function ShowLeaderboard(show)
+
+
+
+
+
+
+
+// DICTIONARY LOGIC
+
+const dArray = document.getElementsByClassName('dictionaryButton');
+const dLength = dArray.length;
+
+function ChangeDictionary(newDictionary)
 {
-  if(show == 1)
+  let data = JSON.stringify({ 'newDictionary' : newDictionary });
+  Post('ChangeDictionary', data)
+  .then(UpdateDictionary)
+  .catch((error) => console.error(error));
+}
+
+function UpdateDictionary(result)
+{
+  let output = parseInt(JSON.parse(result));
+  for(let i = 0; i < dLength; i++)
   {
-    leaderShow = true;
-    FillLeaderboard();
-    leaderboardCenter.style.display = "";
-  }
-  else if(show == 2)
-  {
-    leaderShow = false;
-    leaderboardCenter.style.display = "none";
+    if(i === output) dArray[i].dataset.state = 'active';
+    else dArray[i].dataset.state = 'inactive';
   }
 }
 
-function FillLeaderboard()
+
+
+
+
+
+// KEYBOARD / INPUT LOGIC
+
+const kArray = document.getElementsByClassName("keyboardButtons");
+const kLength = kArray.length;
+
+const fArray = document.getElementsByClassName("filterWords");
+const fLength = fArray.length;
+
+const sArray = document.getElementsByClassName("solveInput");
+const sLength = sArray.length;
+
+let playing = ''; // empty = not playing -, D, R = daily/random
+let keyboardsearch = false;
+let guessLevel = 0; // counts the available guesses
+
+let solveString = ''; // to hold word to pass for ai to solve
+let filterString = ''; // the word filter on the word output list
+let inputString = ''; // the full string of letters in the guess screen, either guessing or playing
+let keyboardString = ''; // holds letters for keyboard search
+
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+document.onkeyup = function(event)
+{
+  if(alphabet.includes(event.key.toUpperCase())) Toggle(event.key.toUpperCase());
+  if(event.key === 'Enter')Toggle('>');
+  if(event.key === 'Delete' || event.key === 'Backspace') Toggle('<');
+  if(event.key === '-') Toggle('-');
+  if(event.key === '?') Toggle('?');
+}
+
+function Toggle(key)
+{
+  if(thinking) return;
+  // arcade or not - playing string
+  // solve screen or not - display state of name screen
+  // alphabet or control - key value
+  // if playing - playing string
+  // if inputstring allows - relevant string length
+  // input or output - display state of list/guess screen
+  // keyboardsearch or not
+
+  // Toggles keyboardsearch
+  if(key === '?')
+  {
+    // if not playing a game, and only if on the GUESS screen
+    if(playing !== '' || GUESS.style.display !== '') return;
+    keyboardsearch = !keyboardsearch;
+    keyboardString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    KeyboardSearchKeys();
+    return;
+  }
+
+  // Adds - to filterString
+  if(key === '-')
+  {
+    // if only on the list screen
+    if(LIST.style.display === '') AddLetter(key, 'LIST');
+    return;
+  }
+
+  if(key === '>' || key === '&gt;')
+  {
+    if(GUESS.style.display !== '') return;
+    if(playing !== '')
+    {
+      if(inputString.length !== ( ( guessLevel + 1 ) * 5 ) ) return;
+      else SubmitGuess();
+    }
+    else
+    {
+      if(keyboardsearch) FilterByKeys();
+      else FilterByInput();
+    }
+  }
+
+  // Deletes last character from any string
+  if(key === '<' || key === '&lt;')
+  {
+    if(playing !== '') if(inputString.length <= ( guessLevel * 5 ) ) return;
+    if(LIST.style.display === '') RemoveLetter('LIST');
+    if(GUESS.style.display === '') RemoveLetter('GUESS');
+    if(SOLVE.style.display === '') RemoveLetter('SOLVE');
+    return;
+  }
+
+  // For any non-command character, either add it to the relevant string or toggle its keyboardsearch state
+  if(key === '?' ||key === '-' || key === '>' || key === '&gt;' || key === '<' || key === '&lt;') return;
+
+  if(keyboardsearch)
+  {
+    if(GUESS.style.display === '')
+    {
+      if(keyboardString.includes(key))
+      {
+        let i = keyboardString.indexOf(key);
+        keyboardString = keyboardString.slice(0, i) + keyboardString.slice(i + 1, keyboardString.length);
+      }
+      else keyboardString += key.toUpperCase();
+      KeyboardSearchKeys();
+    }
+  }
+  else
+  {
+    if(playing !== '') if(inputString.length >= ( ( guessLevel + 1 ) * 5)) return;
+    if(LIST.style.display === '') AddLetter(key, 'LIST');
+    if(GUESS.style.display === '') AddLetter(key, 'GUESS');
+    if(SOLVE.style.display === '') AddLetter(key, 'SOLVE');
+  }
+}
+
+// INPUT TEXT
+
+function AddLetter(key, type)
+{
+  if(type === 'LIST') if(filterString.length >= fLength) return;
+  if(type === 'GUESS') if(inputString.length >= wLength) return;
+  if(type === 'SOLVE') if(solveString.length >= wLength) return;
+
+  if(type === 'LIST') filterString += key;
+  if(type === 'GUESS') inputString += key;
+  if(type === 'SOLVE') solveString += key;
+
+  FillLetters(type);
+}
+
+function RemoveLetter(type)
+{
+  if(type === 'LIST') if(filterString.length === 0) return;
+  if(type === 'GUESS') if(inputString.length === 0) return;
+  if(type === 'SOLVE') if(solveString.length === 0) return;
+  
+  if(type === 'LIST') filterString = filterString.substring(0, (filterString.length - 1));
+  if(type === 'GUESS') inputString = inputString.substring(0, (inputString.length - 1));
+  if(type === 'SOLVE') solveString = solveString.substring(0, (solveString.length - 1));
+
+  FillLetters(type);
+}
+
+function FillLetters(type)
+{
+  let string, array, length;
+
+  if(type === 'LIST')
+  {
+    string = filterString;
+    array = fArray;
+    length = fLength;
+  }
+
+  if(type === 'GUESS')
+  {
+    string = inputString;
+    array = wArray;
+    length = wLength;
+  }
+
+  if(type === 'SOLVE')
+  {
+    string = solveString;
+    array = sArray;
+    length = sLength;
+  }
+
+  for(let i = 0; i < length; i++)
+  {
+    if(i < string.length)
+    {
+      if(array[i].innerHTML != string[i])
+      {
+        array[i].innerHTML = string[i];
+        Pop(array[i]);
+      }
+    }
+    else 
+    {
+      if(array[i].innerHTML != "") Pop(array[i]);
+      array[i].innerHTML = "";
+    }
+  }
+  
+  if(type === "GUESS")
+  {
+    if(playing !== '')
+    {
+      if(string.length === ( ( guessLevel + 1 ) * 5 ) ) kArray[28].dataset.state = 'selected';
+      else kArray[28].dataset.state = 'normal';
+    }
+  }
+
+  if(type === "LIST") FilterWords();
+}
+
+function KeyboardSearchKeys()
+{
+  if(keyboardsearch)
+  {
+    for(let i = 0; i < kLength; i++)
+    {
+      if(keyboardString.includes(kArray[i].innerHTML.toUpperCase()) || kArray[i].innerHTML === '?') kArray[i].dataset.state = 'selected';
+      else kArray[i].dataset.state = 'normal';
+    }
+  }
+  else for(let i = 0; i < kLength; i++) kArray[i].dataset.state = 'normal';
+}
+
+
+
+
+
+// POST LOGIC
+
+let thinking = false;
+
+async function Post(trigger, data)
 {
   thinking = true;
-  $.ajax(
+  let output = '';
+
+  await $.ajax(
   {
     method: "POST",
-    url: "/FillLeaderboard",
+    url: "/" + trigger,
     data:
     {
-      action:'FillLeaderboard',
-      dictionary:dictionary,
-      gameState: gameState
+      data
     },
     success:function(result)
     {
-      let tempArray = JSON.parse(result);
-      OutputLeaderboard(tempArray);
       thinking = false;
+      output = result;
     },
     error:function(result)
     {
       thinking = false;
+      output = result;
     }
   });
+
+  return output;
 }
 
-function OutputLeaderboard(data)
-{ 
-  leaderBoardData.innerHTML = '';
-  
-  for(let i = 0; i < data.length; i++)
-  {
-    leaderBoardData.innerHTML += `
-      <div class="leaderboardContentDiv">
-        <div class="leaderboardTextLeft">
-        ` + ( i + 1 ) + `
-        </div>
-        <div class="leaderboardTextLeft">
-        ` + data[i]["username"] + `
-        </div>
-        <div class="leaderboardTextRight">
-        ` + data[i]["count"] + `
-        </div>
-      </div>
-    `;
-  }
-}
 
-function FillChart()
+// ANIMATION LOGIC
+
+function Pop(panel)
 {
-  let won = 0;
-  let perCent = 0;
-  
-  let currentStreak = 0;
-  let maxStreak = 0;
-  
-  let count1 = 0;
-  let count2 = 0;
-  let count3 = 0;
-  let count4 = 0;
-  let count5 = 0;
-  let count6 = 0;
-  let countX = 0;
-  
-  let dataLength = 0;
-  
-  if(gameState == "Random")
-  {
-    if(savedResultsRandom.length > 0) dataLength = savedResultsRandom.length;
-    currentStreak = savedCurrentStreakRandom;
-    maxStreak = savedMaxStreakRandom;
-    if(dataLength > 0)
-    {
-      for(let i = 0; i < dataLength; i++)
-      {
-        if(savedResultsRandom[i] <= 7)
-        {
-          won++;
-          if(savedResultsRandom[i] == 2) count1++;
-          if(savedResultsRandom[i] == 3) count2++;
-          if(savedResultsRandom[i] == 4) count3++;
-          if(savedResultsRandom[i] == 5) count4++;
-          if(savedResultsRandom[i] == 6) count5++;
-          if(savedResultsRandom[i] == 7) count6++;
-        }
-        else
-        {
-          countX++;
-        }
-      }
-      perCent = (100 / dataLength) * won;
-      perCent = Math.round((perCent + Number.EPSILON) * 100) / 100;
-    }
-  }
-  else if(gameState == "Daily")
-  {
-    if(savedResultsDaily.length > 0) dataLength = savedResultsDaily.length;
-    currentStreak = savedCurrentStreakDaily;
-    maxStreak = savedMaxStreakDaily;
-    if(dataLength > 0)
-    {
-      for(let i = 0; i < dataLength; i++)
-      {
-        if(savedResultsDaily[i] <= 7)
-        {
-          won++;
-          if(savedResultsDaily[i] == 2) count1++;
-          if(savedResultsDaily[i] == 3) count2++;
-          if(savedResultsDaily[i] == 4) count3++;
-          if(savedResultsDaily[i] == 5) count4++;
-          if(savedResultsDaily[i] == 6) count5++;
-          if(savedResultsDaily[i] == 7) count6++;
-        }
-        else
-        {
-          countX++;
-        }
-      }
-      perCent = (100 / dataLength) * won;
-      perCent = Math.round((perCent + Number.EPSILON) * 100) / 100;
-    }
-  }
-  
-  chartPlayed.innerHTML = dataLength;
-  chartPercent.innerHTML = perCent;
-  chartCurrent.innerHTML = currentStreak;
-  chartMax.innerHTML = maxStreak;
-  chartOne.innerHTML = count1;
-  chartTwo.innerHTML = count2;
-  chartThree.innerHTML = count3;
-  chartFour.innerHTML = count4;
-  chartFive.innerHTML = count5;
-  chartSix.innerHTML = count6;
-  chartFailed.innerHTML = countX;
-}
-
-function ClearData()
-{
-  let check = confirm("This will clear data for " + gameState + " game mode. Proceed?");
-  if(!check) return;
-  
-  if(gameState == "Random")
-  {
-    savedResultsRandom = [];
-    savedCurrentStreakRandom = 0;
-    savedMaxStreakRandom = 0;
-    
-    localStorage.setItem("savedResultsRandom", savedResultsRandom);
-    localStorage.setItem("savedCurrentStreakRandom", savedCurrentStreakRandom);
-    localStorage.setItem("savedMaxStreakRandom", savedMaxStreakRandom);
-  }
-  else if(gameState == "Daily")
-  {
-    savedResultsDaily = [];
-    savedCurrentStreakDaily = 0;
-    savedMaxStreakDaily = 0;
-    savedDailyLastDatePlayed = 0;
-    savedDailyLastGuessSet = [];
-    
-    localStorage.setItem("savedResultsDaily", savedResultsDaily);
-    localStorage.setItem("savedCurrentStreakDaily", savedCurrentStreakDaily);
-    localStorage.setItem("savedMaxStreakDaily", savedMaxStreakDaily);
-    localStorage.setItem("savedDailyLastDatePlayed", savedDailyLastDatePlayed);
-    localStorage.setItem("savedDailyLastGuessSet", savedDailyLastGuessSet);
-  }
-  
-  FillChart();
-}
-
-function SolveAfterGame(wordTo)
-{
-  ResetAfterGame();
-  Solve(wordTo);
-}
-
-function ResetAfterGame()
-{
-  playing = false;
-    
-  playButton.style.backgroundColor = "var(--active)";
-  inputOutputButton.style.backgroundColor = "var(--active)";
-  solveButton.style.backgroundColor = "var(--active)";
-  sortButton.style.backgroundColor = "var(--active)";
-  resetButton.style.backgroundColor = "var(--active)";
-  changeDictionaryButton.style.backgroundColor = "var(--active)";
-  helpButton.style.backgroundColor = "var(--active)";
-  
-  otherControls.style.display = "";
-  playTextPanel.style.display = "none";
-  
-  for(let i = 0; i < kLength; i++)
-  {
-    kArray[i].style.backgroundColor = "var(--backgroundLight)";
-  }
-}
-
-function AnimatePop(panel)
-{
-  panel.animate([
-    { transform: 'scale(110%, 110%)'},
-    { transform: 'scale(109%, 109%)'},
-    { transform: 'scale(108%, 108%)'},
-    { transform: 'scale(107%, 107%)'},
-    { transform: 'scale(106%, 106%)'},
-    { transform: 'scale(105%, 105%)'},
-    { transform: 'scale(104%, 104%)'},
-    { transform: 'scale(103%, 103%)'},
-    { transform: 'scale(102%, 102%)'},
-    { transform: 'scale(101%, 101%)'},
-    { transform: 'scale(100%, 100%)'}],
+  panel.animate(
+    [
+      { transform: 'scale(110%, 110%)'},
+      { transform: 'scale(109%, 109%)'},
+      { transform: 'scale(108%, 108%)'},
+      { transform: 'scale(107%, 107%)'},
+      { transform: 'scale(106%, 106%)'},
+      { transform: 'scale(105%, 105%)'},
+      { transform: 'scale(104%, 104%)'},
+      { transform: 'scale(103%, 103%)'},
+      { transform: 'scale(102%, 102%)'},
+      { transform: 'scale(101%, 101%)'},
+      { transform: 'scale(100%, 100%)'}
+    ],
     {
       duration: 100,
     }
   );
 }
 
-function AnimateOnInput(panel)
-{
-  panel.animate([
-    { transform: 'scale(110%, 110%)'},
-    { transform: 'scale(109%, 109%)'},
-    { transform: 'scale(108%, 108%)'},
-    { transform: 'scale(107%, 107%)'},
-    { transform: 'scale(106%, 106%)'},
-    { transform: 'scale(105%, 105%)'},
-    { transform: 'scale(104%, 104%)'},
-    { transform: 'scale(103%, 103%)'},
-    { transform: 'scale(102%, 102%)'},
-    { transform: 'scale(101%, 101%)'},
-    { transform: 'scale(100%, 100%)'}           
-      ], { 
-    duration: 100,            
- });
-}
-
-function AnimateOnColour(panel)
-{
-  panel.animate([
-    { transform: 'scale(110%, 110%)'},
-    { transform: 'scale(109%, 109%)'},
-    { transform: 'scale(108%, 108%)'},
-    { transform: 'scale(107%, 107%)'},
-    { transform: 'scale(106%, 106%)'},
-    { transform: 'scale(105%, 105%)'},
-    { transform: 'scale(104%, 104%)'},
-    { transform: 'scale(103%, 103%)'},
-    { transform: 'scale(102%, 102%)'},
-    { transform: 'scale(101%, 101%)'},
-    { transform: 'scale(100%, 100%)'}           
-      ], { 
-    duration: 10,            
- });
-}
-
-function TESTTEST()
-{
-  return;
-  thinking = true;
-  $.ajax(
-  {
-    method: "POST",
-    url: "/TEST",
-    data:
-    {
-      action:'TEST',
-      dictionary:dictionary,
-    },
-    success:function(result)
-    {
-      thinking = false;
-    },
-    error:function(result)
-    {
-      thinking = false;
-    }
-  });
-}
-
-function StartDaily()
-{
-  thinking = true;
-  $.ajax(
-  {
-    method: "POST",
-    url: "/startDaily",
-    data:
-    {
-      action:'startDaily',
-      dictionary:dictionary,
-    },
-    success:function(result)
-    {
-      DailyReady();
-    },
-    error:function(result)
-    {
-      thinking = false;
-    }
-  });
-}
-
-function DailyReady()
-{
-  gameState = "Daily";
-  NewGame();
-}
-
-function TerminateArcade()
-{
-  playing = false;
-  arcadeActive = false;
-  nameCenter.style.display = "none";
-  nameScreenBool = false;
-  arcadePaused = false;
-  ClearArcadeInterval();
-  playTextPanel.style.display = "none";
-  otherControls.style.display = "";
-  playCenter.style.display = "none";
-  clueCenter.style.display = "none";
-  playButton.style.backgroundColor = "var(--active)";
-}
-
-window.addEventListener("DOMContentLoaded", ToggleScreen(0));
+function Sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }

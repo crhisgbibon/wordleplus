@@ -23,8 +23,9 @@
 
   --hyperlink: var(--hyperlinkLight);
 
-  --backgroundDark: rgba(50,50,50,1);
+  --backgroundDark: rgba(100,100,100,1);
   --backgroundLight: rgba(225, 225, 225, 1);
+  --backgroundTranslucent: rgba(50, 50, 50, 0.5);
 
   --foregroundDark: rgba(255, 255, 255, 1);
   --foregroundLight: rgba(50, 50, 50, 1);
@@ -79,9 +80,14 @@
   background-color: var(--yellow);
 }
 
-.keyboardButtons[data-state='disabled']
+.keyboardButtons[data-state='normal']
 {
   background-color: var(--backgroundLight);
+}
+
+.keyboardButtons[data-state='disabled']
+{
+  background-color: var(--backgroundDark);
 }
 
 .control[data-state='active']
