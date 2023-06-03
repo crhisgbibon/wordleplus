@@ -1,7 +1,7 @@
 <div id="PLAY" style='min-height: calc(var(--vh) * 65); max-height: calc(var(--vh) * 65);' class='flex flex-col justify-center items-center overflow-y-auto'>
 
   <div class="flex flex-row justify-center items-center w-full max-w-sm px-4 my-4" style='height: calc(var(--vh) * 7.5);'>
-    <div class='w-40 mx-4'>Game Modes</div>
+    <div class='w-40 mx-4 text-center'>Game Modes</div>
   </div>
 
   <div class="flex flex-row justify-center items-center w-full max-w-sm px-4 my-4" style='height: calc(var(--vh) * 7.5);'>

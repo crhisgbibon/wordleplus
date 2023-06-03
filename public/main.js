@@ -630,6 +630,7 @@ async function UpdatePostGuess(guesses)
 
   for(let g = 0; g < guesses.length; g++)
   {
+    winCount = 0;
     for(let i = 0; i < guesses[g].length; i++)
     {
       let index = ( g * 5 ) + i;
